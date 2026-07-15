@@ -75,8 +75,8 @@
   .cal-wd.sun{color:#e5484d}
   .cal-wd.sat{color:#2f6df6}
   .cal-cell{
-    position:relative; min-height:52px; border:1px solid var(--line); border-radius:9px;
-    background:#fff; padding:5px 6px; cursor:pointer; overflow:hidden; transition:.12s;
+    position:relative; min-height:94px; border:1px solid var(--line); border-radius:9px;
+    background:#fff; padding:6px 7px; cursor:pointer; overflow:hidden; transition:.12s;
   }
   .cal-cell:hover{border-color:#c4cede}
   .cal-cell.other{background:#fafbfd; color:#c2cad8; cursor:default}
@@ -88,8 +88,9 @@
   .cal-cell.sat .cal-day{color:#2f6df6}
   .cal-cell.other .cal-day{color:#c2cad8}
   .cal-ev{
-    margin-top:3px; font-size:10.5px; line-height:1.35; background:#eef2fb; color:var(--brand);
-    border-radius:4px; padding:1px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    margin-top:3px; font-size:11px; line-height:1.3; background:#eef2fb; color:var(--brand);
+    border-radius:4px; padding:2px 5px; white-space:normal; word-break:break-word;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
   .cal-more{font-size:10px; color:var(--muted); margin-top:2px; padding-left:2px}
 
@@ -107,7 +108,7 @@
     .cal-notes{display:block; position:relative}
     .notes-col{
       position:absolute; top:0; left:100%; margin-left:22px;
-      width:min(320px, calc(50vw - 452px));
+      width:min(460px, calc(50vw - 436px));
       height:var(--panelH); grid-template-rows: var(--calH) 1fr; align-content:stretch;
     }
     .key-col{
@@ -611,12 +612,12 @@ function renderCalendar(){
     if(ds===selDate) cell.classList.add('sel');
     let html = `<div class="cal-day">${c.d}</div>`;
     const evs = (schedule[ds]||[]).slice().sort(evSort);
-    const shown = evs.slice(0,2);
+    const shown = evs.slice(0,3);
     shown.forEach(ev=>{
       const t = ev.time ? ev.time+' ' : '';
       html += `<div class="cal-ev" title="${esc((ev.time?ev.time+' ':'')+ev.title)}">${esc(t+ev.title)}</div>`;
     });
-    if(evs.length>2) html += `<div class="cal-more">+${evs.length-2}</div>`;
+    if(evs.length>3) html += `<div class="cal-more">+${evs.length-3}</div>`;
     cell.innerHTML = html;
     cell.addEventListener('click',()=>selectDate(ds));
     grid.appendChild(cell);
@@ -840,7 +841,7 @@ function makeBoard(b){
     <ul class="pi-list"></ul>
     ${items.length?'':'<div class="pi-empty">메모가 없어요</div>'}
     <div class="pi-add">
-      <input class="pi-input" type="text" placeholder="메모 추가 후 Enter">
+      <input class="pi-input" type="text" placeholder="">
       <button class="pi-addbtn" title="추가">+</button>
     </div>`;
   wireMemo(div, b.id);
@@ -858,7 +859,7 @@ function makeKeyFilesPostit(){
     <ul class="pi-list keymemo"></ul>
     ${memoItems.length?'':'<div class="pi-empty km-empty">메모가 없어요</div>'}
     <div class="pi-add">
-      <input class="pi-input" type="text" placeholder="메모 추가">
+      <input class="pi-input" type="text" placeholder="">
       <button class="pi-addbtn" title="추가">+</button>
     </div>
     <button class="key-reg" type="button">＋ 주요파일 등록</button>
