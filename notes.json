@@ -1,5 +1,11 @@
 {
-  "chair1": [],
+  "chair1": [
+    {
+      "id": "mrmq9y8yp85w",
+      "text": "도로철도 항공과 이상열 연락(4695)",
+      "done": false
+    }
+  ],
   "chair2": [
     {
       "id": "mrloy0zrk9i1",
