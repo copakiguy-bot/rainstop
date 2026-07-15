@@ -5,5 +5,12 @@
       "text": "이상열  연락예정",
       "done": true
     }
+  ],
+  "chair2": [
+    {
+      "id": "mrloy0zrk9i1",
+      "text": "윤리심사자문위원 추천 확인",
+      "done": false
+    }
   ]
 }
