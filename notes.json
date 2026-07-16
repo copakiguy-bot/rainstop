@@ -1,5 +1,11 @@
 {
-  "chair1": [],
+  "chair1": [
+    {
+      "id": "mrn68iwvou8c",
+      "text": "7/20 소방 조남진(5576)접견 요청",
+      "done": false
+    }
+  ],
   "chair2": [
     {
       "id": "mrloy0zrk9i1",
