@@ -1,5 +1,11 @@
 {
-  "chair1": [],
+  "chair1": [
+    {
+      "id": "mrva6wsfcfvr",
+      "text": "동물방역위생과 연락 요청",
+      "done": false
+    }
+  ],
   "chair2": [
     {
       "id": "mrsz8szvjn3h",
