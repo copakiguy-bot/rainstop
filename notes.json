@@ -1,5 +1,11 @@
 {
-  "chair1": [],
+  "chair1": [
+    {
+      "id": "mryjbquoankd",
+      "text": "이동훈 연락5174",
+      "done": false
+    }
+  ],
   "chair2": [],
   "inbox": [
     {
