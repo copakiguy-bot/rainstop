@@ -1,5 +1,11 @@
 {
-  "chair1": [],
+  "chair1": [
+    {
+      "id": "ms5l2rhqa6pd",
+      "text": "건소위 국외연수 : 라오스 9.28~10.2",
+      "done": false
+    }
+  ],
   "chair2": [],
   "inbox": []
 }
