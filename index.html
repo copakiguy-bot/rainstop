@@ -139,7 +139,9 @@
   .keyfiles-list{list-style:none; margin:0; padding:0; flex:1 1 auto; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:5px}
   .kf-item{display:flex; align-items:center; gap:7px; background:rgba(255,255,255,.7); border:1px solid rgba(0,0,0,.06); border-radius:8px; padding:6px 8px}
   .kf-ico{font-size:15px; flex-shrink:0}
-  .kf-name{flex:1; min-width:0; font-size:12.5px; font-weight:600; color:#33301f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .kf-main{flex:1; min-width:0}
+  .kf-name{display:block; font-size:12.5px; font-weight:600; color:#33301f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .kf-when{display:block; font-size:10.5px; color:#8a8296; margin-top:1px}
   .kf-act{border:none; background:transparent; cursor:pointer; font-size:13px; text-decoration:none; color:#555; padding:2px; flex-shrink:0}
   .kf-act.del{color:var(--danger)}
   .kf-empty{font-size:12px; color:#9aa0ad; padding:8px 2px}
@@ -231,6 +233,13 @@
   .finfo{flex:1; min-width:0}
   .fname{font-size:15px; font-weight:600; word-break:break-all; line-height:1.35}
   .fmeta{font-size:12px; color:var(--muted)}
+  .fmeta .sep{opacity:.5; margin:0 5px}
+  .fmeta .when{color:var(--brand); font-weight:600}
+  .fmeta .when.pending{color:var(--muted); font-weight:400}
+  .badge-new{
+    display:inline-block; margin-left:6px; padding:1px 6px; border-radius:20px;
+    background:#e8f5ec; color:var(--ok); font-size:10.5px; font-weight:700; vertical-align:1px;
+  }
   .facts{display:flex; gap:6px; flex-shrink:0}
   .act{
     border:1px solid var(--line); background:#fff; border-radius:9px; width:38px; height:38px;
@@ -398,6 +407,78 @@ function headers(auth){
 }
 function encPath(p){ return p.split('/').map(encodeURIComponent).join('/'); }
 
+// ---------- 업로드 시각(최근 커밋 시각) ----------
+const DATE_LS = 'fileboard.dates.v1';
+let fileDates = {};                       // { "경로|sha": "ISO시각" }
+try{ fileDates = JSON.parse(localStorage.getItem(DATE_LS)) || {}; }catch(e){ fileDates = {}; }
+
+function dateKey(it){ return it.path + '|' + it.sha; }
+function getDate(it){ return fileDates[dateKey(it)] || null; }
+function setDate(it, iso){ if(!it || !iso) return; fileDates[dateKey(it)] = iso; saveDates(); }
+let dateSaveT;
+function saveDates(){
+  clearTimeout(dateSaveT);
+  dateSaveT = setTimeout(()=>{
+    try{
+      const keys = Object.keys(fileDates);
+      if(keys.length > 600){                       // 오래된 캐시 정리
+        const trimmed = {}; keys.slice(-400).forEach(k=>trimmed[k]=fileDates[k]); fileDates = trimmed;
+      }
+      localStorage.setItem(DATE_LS, JSON.stringify(fileDates));
+    }catch(e){}
+  }, 300);
+}
+
+const p2 = n => String(n).padStart(2,'0');
+function fmtDateTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}.${p2(d.getMonth()+1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+}
+function fmtDateShort(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '';
+  return `${p2(d.getMonth()+1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+}
+function isNew(iso){                                // 24시간 이내면 NEW
+  if(!iso) return false;
+  const t = new Date(iso).getTime();
+  return !isNaN(t) && (Date.now() - t) < 24*60*60*1000;
+}
+
+// 최신 등록 파일이 위로
+function newestFirst(a,b){
+  const da = getDate(a), db = getDate(b);
+  if(da && db){ if(da !== db) return db.localeCompare(da); }
+  else if(da) return -1;
+  else if(db) return 1;
+  return a.name.localeCompare(b.name,'ko');
+}
+
+// 각 파일의 최근 커밋 시각을 조회(캐시에 없는 것만)
+async function fillDates(items, onChange){
+  const need = (items||[]).filter(it => it && it.sha && !getDate(it));
+  if(!need.length || !ready()) return;
+  const base = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/commits`;
+  let changed = false;
+  for(let i=0;i<need.length;i+=5){                  // 5개씩 병렬
+    await Promise.all(need.slice(i,i+5).map(async it=>{
+      try{
+        const url = `${base}?path=${encodeURIComponent(it.path)}&sha=${encodeURIComponent(cfg.branch)}&per_page=1`;
+        const r = await fetch(url, {headers:headers(true), cache:'no-store'});
+        if(!r.ok) return;
+        const j = await r.json();
+        const c = Array.isArray(j) ? j[0] : null;
+        const iso = c && c.commit && ((c.commit.committer && c.commit.committer.date) || (c.commit.author && c.commit.author.date));
+        if(iso){ setDate(it, iso); changed = true; }
+      }catch(e){}
+    }));
+  }
+  if(changed && onChange) onChange();
+}
+
 async function loadFiles(){
   if(!ready()){ $('#setupBanner').style.display='block'; render([]); return; }
   $('#setupBanner').style.display='none';
@@ -408,8 +489,9 @@ async function loadFiles(){
     if(r.status===404){ listing=[]; render([]); return; } // 빈 폴더
     if(!r.ok) throw new Error(await msg(r));
     const data = await r.json();
-    listing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+    listing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort(newestFirst);
     render(listing);
+    fillDates(listing, ()=>{ listing.sort(newestFirst); render(listing); });
   }catch(e){
     $('#count').textContent='';
     toast('목록을 불러오지 못했어요: '+e.message, true);
@@ -437,10 +519,14 @@ async function uploadOne(file){
   // 옵티미스틱 갱신: 반환된 content 정보로 목록 반영
   if(data && data.content){
     const c = data.content;
+    const iso = (data.commit && data.commit.committer && data.commit.committer.date)
+             || (data.commit && data.commit.author && data.commit.author.date)
+             || new Date().toISOString();
+    setDate(c, iso);                       // 방금 올린 시각 기록
     const idx = listing.findIndex(x=>x.name===c.name);
     if(idx>=0) listing[idx] = {...listing[idx], ...c};
     else listing.push(c);
-    listing.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+    listing.sort(newestFirst);             // 최신이 맨 위
     render(listing);
   }
 }
@@ -495,8 +581,12 @@ function render(items){
     li.innerHTML = `
       <div class="fico">${iconFor(it.name)}</div>
       <div class="finfo">
-        <div class="fname">${esc(it.name)}</div>
-        <div class="fmeta">${fmtSize(it.size)}</div>
+        <div class="fname">${esc(it.name)}${isNew(getDate(it))?'<span class="badge-new">NEW</span>':''}</div>
+        <div class="fmeta">${fmtSize(it.size)}<span class="sep">·</span>${
+          getDate(it)
+            ? `<span class="when">${fmtDateTime(getDate(it))}</span>`
+            : '<span class="when pending">시각 확인 중…</span>'
+        }</div>
       </div>
       <div class="facts">
         <a class="act" href="${dl}" download="${esc(it.name)}" title="다운로드">⬇️</a>
@@ -947,8 +1037,9 @@ async function loadKeyFiles(){
     if(r.status===404){ keyListing=[]; renderNotes(); return; }
     if(!r.ok) throw new Error(await msg(r));
     const data = await r.json();
-    keyListing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+    keyListing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort(newestFirst);
     renderNotes();
+    fillDates(keyListing, ()=>{ keyListing.sort(newestFirst); renderNotes(); });
   }catch(e){ toast('주요파일 목록을 불러오지 못했어요: '+e.message, true); }
 }
 
@@ -965,9 +1056,14 @@ async function uploadKeyOne(file){
   if(!r.ok) throw new Error(await msg(r));
   const data = await r.json();
   if(data && data.content){
-    const c = data.content; const idx = keyListing.findIndex(x=>x.name===c.name);
+    const c = data.content;
+    const iso = (data.commit && data.commit.committer && data.commit.committer.date)
+             || (data.commit && data.commit.author && data.commit.author.date)
+             || new Date().toISOString();
+    setDate(c, iso);
+    const idx = keyListing.findIndex(x=>x.name===c.name);
     if(idx>=0) keyListing[idx] = {...keyListing[idx], ...c}; else keyListing.push(c);
-    keyListing.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+    keyListing.sort(newestFirst);
     renderNotes();
   }
 }
@@ -1006,7 +1102,10 @@ function renderKeyFilesInto(ul, emptyEl){
     const li = document.createElement('li'); li.className='kf-item';
     li.innerHTML = `
       <span class="kf-ico">${iconFor(it.name)}</span>
-      <span class="kf-name">${esc(it.name)}</span>
+      <span class="kf-main">
+        <span class="kf-name">${esc(it.name)}</span>
+        <span class="kf-when">${getDate(it) ? fmtDateShort(getDate(it)) : '…'}</span>
+      </span>
       <a class="kf-act" href="${dl}" download="${esc(it.name)}" title="다운로드">⬇️</a>
       <button class="kf-act del" title="삭제">🗑️</button>`;
     li.querySelector('.del').addEventListener('click',()=>deleteKeyFile(it));
