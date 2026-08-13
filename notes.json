@@ -1,5 +1,11 @@
 {
   "chair1": [],
-  "chair2": [],
+  "chair2": [
+    {
+      "id": "msqrrz76eayd",
+      "text": "20~25일 가족휴가",
+      "done": false
+    }
+  ],
   "inbox": []
 }
