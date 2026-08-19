@@ -6,6 +6,12 @@
       "done": false
     }
   ],
-  "chair2": [],
+  "chair2": [
+    {
+      "id": "mszef58dgwfv",
+      "text": "20~25 가족휴가(다낭)",
+      "done": false
+    }
+  ],
   "inbox": []
 }
