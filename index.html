@@ -35,7 +35,6 @@
     background:var(--bg); color:var(--text); line-height:1.5; -webkit-text-size-adjust:100%;
   }
   .shell{max-width:1280px; margin:18px auto 40px; padding:20px; background:var(--surface); border-radius:28px; box-shadow:0 20px 60px -30px rgba(25,28,32,.35)}
-  @media(max-width:700px){ .shell{margin:0; border-radius:0; padding:14px} }
 
   /* ===== header ===== */
   .topbar{display:flex; align-items:center; gap:12px; padding:2px 6px 18px}
@@ -107,16 +106,11 @@
   .side-col{display:flex; flex-direction:column; gap:18px; min-width:0}
   .sub-row{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start}
   @media(max-width:1080px){
-    .layout{grid-template-columns:1fr}
+    .layout{grid-template-columns:minmax(0,1fr)}
     .side-col{order:2}
   }
-  @media(max-width:760px){ .sub-row{grid-template-columns:1fr} }
-  @media(max-width:700px){
-    .cal-grid{padding:0 10px; gap:3px}
-    .cal-cell{min-height:58px; padding:4px 5px; border-radius:9px}
-    .cal-day{width:21px; height:21px; font-size:11.5px}
-    .cal-ev{font-size:9.5px; padding:1px 4px; -webkit-line-clamp:1}
-  }
+  @media(max-width:760px){ .sub-row{grid-template-columns:minmax(0,1fr)} }
+  .layout > *, .sub-row > *, .inbox-col > *{min-width:0}
 
   /* ===== 달력 ===== */
   #calCard{padding:0 0 18px}
@@ -164,6 +158,10 @@
   }
   .cal-cell.day-blue .cal-ev, .cal-cell.day-red .cal-ev{background:rgba(255,255,255,.72); border-color:transparent}
   .cal-more{font-size:10px; color:var(--muted); margin-top:2px; padding-left:2px; font-weight:700}
+  .cal-dots{display:none; gap:3px; align-items:center; margin-top:3px}
+  .cal-dots i{width:5px; height:5px; border-radius:50%; background:var(--brand); display:block}
+  .cal-cell.day-red .cal-dots i{background:#c2453f}
+  .cal-dots b{font-size:9px; color:var(--muted); font-weight:700; margin-left:1px}
 
   /* ===== 일정 적기 (day panel) ===== */
   #dayPanel{padding:0 0 18px}
@@ -299,6 +297,73 @@
   .spin{display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent;
     border-radius:50%; animation:sp .7s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ================= 모바일 ================= */
+  @media(max-width:700px){
+    .shell{margin:0; border-radius:0; padding:12px 12px 30px; box-shadow:none}
+    .topbar{padding:2px 2px 14px; gap:8px}
+    .logo{font-size:16px; gap:8px}
+    .logo .mark{width:30px; height:30px}
+    .icon-btn{width:36px; height:36px}
+    .layout, .main-col, .side-col, .sub-row, .inbox-col{gap:12px}
+    .card{border-radius:16px}
+    .card-head{padding:15px 15px 0}
+    .card-head h2{font-size:15px}
+    .banner{padding:11px 13px; margin-bottom:12px}
+
+    /* 달력: 칸을 낮추고 일정은 점으로 — 날짜를 누르면 아래 패널에 전체가 보임 */
+    #calCard{padding:0 0 14px}
+    .cal-head{padding:14px 14px 10px; gap:6px}
+    .cal-title{font-size:17px}
+    .cal-today{height:31px; padding:0 13px; font-size:12.5px}
+    .cal-nav{width:31px; height:31px; font-size:14px}
+    .cal-grid{padding:0 9px; gap:3px}
+    .cal-wd{font-size:10.5px; padding:2px 0 5px}
+    .cal-cell{
+      min-height:47px; padding:4px 2px; border-radius:9px;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .cal-day{width:22px; height:22px; font-size:12px; margin-bottom:0}
+    .cal-ev, .cal-more{display:none}
+    .cal-dots{display:flex}
+
+    /* 일정 적기 */
+    #dayPanel{padding:0 0 15px}
+    #dayPanel .dp-body{padding:10px 14px 0}
+    ul#dayEvents{max-height:none}
+    ul#dayEvents li{padding:9px 11px; gap:8px}
+    .ev-time{min-width:38px}
+    .dp-color{margin-bottom:10px}
+
+    /* 메모 */
+    .pi-wrap{padding:10px 14px 0}
+    .pi-list{max-height:none}
+
+    /* 파일 */
+    #uploadCard, #filesCard{padding:0 0 12px}
+    #drop{margin:10px 14px 0; padding:20px 12px}
+    #drop .big{font-size:14px}
+    #bar{margin:10px 14px 0}
+    .up-opts{margin:10px 14px 0}
+    .up-opts .desc{display:none}
+    li.file{padding:11px 14px; gap:10px}
+    .fico{width:34px; height:34px; border-radius:10px}
+    .fico .ic{width:17px; height:17px}
+    .fname{font-size:13px}
+    .fmeta{font-size:11px}
+    .facts{gap:5px}
+    .act{width:31px; height:31px}
+    .act .ic-sm{width:14px; height:14px}
+    .empty{padding:24px 14px}
+
+    /* 설정 */
+    #settings{padding:15px}
+    .row2{flex-direction:column; gap:0}
+
+    /* iOS에서 입력창 누를 때 화면이 확대되며 밀리는 것 방지 (16px 이상 필수) */
+    input, textarea, select{font-size:16px !important}
+    .pw button{font-size:13px !important}
+  }
 </style>
 </head>
 <body>
@@ -854,6 +919,10 @@ function renderCalendar(){
       html += `<div class="cal-ev" title="${esc((ev.time?ev.time+' ':'')+ev.title)}">${esc(t+ev.title)}</div>`;
     });
     if(evs.length>3) html += `<div class="cal-more">+${evs.length-3}</div>`;
+    if(evs.length){                       // 모바일: 일정 개수를 점으로 표시
+      html += '<div class="cal-dots">' + evs.slice(0,3).map(()=>'<i></i>').join('')
+            + (evs.length>3 ? '<b>+'+(evs.length-3)+'</b>' : '') + '</div>';
+    }
     cell.innerHTML = html;
     cell.addEventListener('click',()=>selectDate(ds));
     grid.appendChild(cell);
@@ -889,6 +958,10 @@ function selectDate(ds){
   resetForm();
   renderCalendar();
   renderDayPanel();
+  if(window.innerWidth <= 700){          // 모바일: 아래 일정 패널로 이동
+    const p = $('#dayPanel');
+    if(p) p.scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
 
 function fmtDateKo(ds){
