@@ -82,6 +82,10 @@
   .cal-cell.other{background:#fafbfd; color:#c2cad8; cursor:default}
   .cal-cell.other:hover{border-color:var(--line)}
   .cal-cell.today{border-color:var(--brand); background:#f3f7ff}
+  .cal-cell.day-blue{background:#dbeafe}
+  .cal-cell.day-red{background:#fee2e2}
+  .cal-cell.day-blue:hover{border-color:#93b4f5}
+  .cal-cell.day-red:hover{border-color:#f5a8a8}
   .cal-cell.sel{outline:2px solid var(--brand); outline-offset:-1px}
   .cal-day{font-size:13px; font-weight:600}
   .cal-cell.sun .cal-day{color:#e5484d}
@@ -195,6 +199,17 @@
   .ev-edit{color:var(--muted)}
   .ev-del{color:var(--danger)}
   .dp-empty{font-size:13px; color:var(--muted); padding:6px 2px 12px}
+  .dp-color{display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .dp-color .lbl{font-size:12.5px; color:var(--muted); margin-right:2px}
+  .color-btn{
+    width:32px; height:32px; border-radius:9px; border:2px solid var(--line);
+    cursor:pointer; padding:0; font-size:13px; color:var(--muted); line-height:1;
+  }
+  .color-btn.blue{background:#dbeafe}
+  .color-btn.red{background:#fee2e2}
+  .color-btn.plain{background:#fff}
+  .color-btn:hover{border-color:#c4cede}
+  .color-btn.on{border-color:var(--brand); box-shadow:0 0 0 2px rgba(47,109,246,.22)}
   .dp-add{display:flex; flex-direction:column; gap:8px}
   .dp-add .dp-row1{display:flex; gap:8px}
   .dp-add input#evTime{
@@ -331,6 +346,12 @@
     <div class="dp-head">
       <h2 id="dpTitle">날짜</h2>
       <button class="dp-close" id="dpClose" title="닫기">×</button>
+    </div>
+    <div class="dp-color">
+      <span class="lbl">날짜 배경</span>
+      <button class="color-btn plain" id="colNone" title="색 없음">✕</button>
+      <button class="color-btn blue" id="colBlue" title="옅은 파랑"></button>
+      <button class="color-btn red" id="colRed" title="옅은 빨강"></button>
     </div>
     <ul id="dayEvents"></ul>
     <div class="dp-empty" id="dpEmpty" style="display:none">등록된 일정이 없어요.</div>
@@ -664,6 +685,41 @@ async function saveSchedule(){
   if(data && data.content) schedSha = data.content.sha;
 }
 
+// ---------- 날짜 배경색 ----------
+function dayColors(){
+  if(!schedule._colors || typeof schedule._colors!=='object' || Array.isArray(schedule._colors)) schedule._colors = {};
+  return schedule._colors;
+}
+function renderColorBtns(){
+  if(!selDate) return;
+  const c = dayColors()[selDate] || null;
+  $('#colNone').classList.toggle('on', !c);
+  $('#colBlue').classList.toggle('on', c==='blue');
+  $('#colRed').classList.toggle('on', c==='red');
+}
+async function setDayColor(c){
+  if(!selDate) return;
+  if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return; }
+  if(!cfg.token){ toast('색을 지정하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
+  const colors = dayColors();
+  const prev = colors[selDate] || null;
+  if(!c && !prev) return;             // 이미 색이 없음
+  if(c===prev) c = null;              // 같은 색을 다시 누르면 해제
+  if(c) colors[selDate] = c; else delete colors[selDate];
+  if(Object.keys(colors).length===0) delete schedule._colors;
+  renderCalendar(); renderColorBtns();
+  try{
+    await saveSchedule();
+    toast(c ? '날짜 색을 지정했어요 ✓' : '날짜 색을 지웠어요 ✓');
+  }catch(e){
+    const rb = dayColors();
+    if(prev) rb[selDate] = prev; else delete rb[selDate];
+    if(Object.keys(rb).length===0) delete schedule._colors;
+    renderCalendar(); renderColorBtns();
+    toast('색 저장 실패: '+e.message, true);
+  }
+}
+
 function renderCalendar(){
   $('#calTitle').textContent = `${curY}년 ${curM+1}월`;
   const grid = $('#calGrid'); grid.innerHTML='';
@@ -699,6 +755,9 @@ function renderCalendar(){
     }
     const ds = ymd(curY, curM, c.d);
     if(ds===tStr) cell.classList.add('today');
+    const dc = dayColors()[ds];
+    if(dc==='blue') cell.classList.add('day-blue');
+    else if(dc==='red') cell.classList.add('day-red');
     if(ds===selDate) cell.classList.add('sel');
     let html = `<div class="cal-day">${c.d}</div>`;
     const evs = (schedule[ds]||[]).slice().sort(evSort);
@@ -758,6 +817,7 @@ function fmtDateKo(ds){
 function renderDayPanel(){
   if(!selDate) return;
   $('#dpTitle').textContent = fmtDateKo(selDate);
+  renderColorBtns();
   const ul = $('#dayEvents'); ul.innerHTML='';
   const evs = (schedule[selDate]||[]).slice().sort(evSort);
   $('#dpEmpty').style.display = evs.length? 'none':'block';
@@ -1167,6 +1227,9 @@ $('#todayBtn').onclick=()=>{ curY=today.getFullYear(); curM=today.getMonth(); se
 $('#dpClose').onclick=()=>{ $('#dayPanel').classList.remove('open'); selDate=null; resetForm(); renderCalendar(); };
 $('#evAdd').onclick=submitEvent;
 $('#evCancel').onclick=()=>{ resetForm(); renderDayPanel(); };
+$('#colNone').onclick=()=>setDayColor(null);
+$('#colBlue').onclick=()=>setDayColor('blue');
+$('#colRed').onclick=()=>setDayColor('red');
 $('#evTitle').addEventListener('keydown',e=>{ if(e.key==='Enter') submitEvent(); });
 $('#evTime').addEventListener('keydown',e=>{ if(e.key==='Enter') submitEvent(); });
 $('#evTime').addEventListener('blur',()=>{ const t=parseTime($('#evTime').value); if(t) $('#evTime').value=t; });
