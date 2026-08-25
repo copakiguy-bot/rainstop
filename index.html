@@ -3,294 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>파일 게시판</title>
+<title>부의장실 게시판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#f4f6fb; --card:#ffffff; --line:#e4e8f0; --text:#1c2430;
-    --muted:#6b7688; --brand:#2f6df6; --brand-d:#1f57d6;
-    --danger:#e5484d; --ok:#2ea043; --shadow:0 1px 3px rgba(20,30,50,.08);
+    --bg:#eef0f3;            /* 페이지 배경 */
+    --surface:#f6f6f4;       /* 컨테이너 배경 */
+    --card:#ffffff;
+    --line:#e7e8ea;
+    --text:#191c20;
+    --muted:#8a919d;
+    --accent:#f04e23;        /* 오렌지 포인트 */
+    --brand:#0f7a6c;         /* 부의장실 브랜드 컬러(딥 틸) */
+    --brand-d:#0b5a50;
+    --brand-soft:#e6f2f0;
+    --accent-soft:#feede8;
+    --dark:#1b1e23;          /* 다크 네이비 필 */
+    --danger:#e5484d;
+    --ok:#2ea043;
+    --day-blue:#dbeafe;
+    --day-red:#fee2e2;
+    --r-lg:22px; --r-md:14px; --r-sm:10px;
+    --shadow:0 1px 2px rgba(25,28,32,.05), 0 8px 24px -18px rgba(25,28,32,.25);
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    background:var(--bg); color:var(--text); line-height:1.5;
-    -webkit-text-size-adjust:100%;
+    font-family:"Noto Sans KR","Noto Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.5; -webkit-text-size-adjust:100%;
   }
-  .wrap{max-width:820px; margin:0 auto; padding:16px 16px 60px}
-  header{display:flex; align-items:center; gap:10px; padding:8px 2px 16px}
-  header h1{font-size:20px; margin:0; flex:1; font-weight:700}
+  .shell{max-width:1280px; margin:18px auto 40px; padding:20px; background:var(--surface); border-radius:28px; box-shadow:0 20px 60px -30px rgba(25,28,32,.35)}
+  @media(max-width:700px){ .shell{margin:0; border-radius:0; padding:14px} }
+
+  /* ===== header ===== */
+  .topbar{display:flex; align-items:center; gap:12px; padding:2px 6px 18px}
+  .logo{
+    display:flex; align-items:center; gap:10px; font-weight:800; font-size:17.5px;
+    letter-spacing:-.01em; color:var(--brand-d);
+  }
+  .logo .mark{
+    width:33px; height:33px; border-radius:50%; color:#fff;
+    background:linear-gradient(140deg, #14907e 0%, var(--brand) 45%, var(--brand-d) 100%);
+    box-shadow:0 5px 14px -5px rgba(15,122,108,.65);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .logo .mark svg{width:17px; height:17px}
+  /* 모노톤 아이콘 공통 */
+  .ic{width:18px; height:18px; display:block; flex-shrink:0}
+  .ic-sm{width:15px; height:15px}
+  .topbar .sp{flex:1}
   .icon-btn{
-    border:1px solid var(--line); background:var(--card); color:var(--text);
-    width:40px; height:40px; border-radius:10px; font-size:18px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+    border:1px solid var(--line); background:var(--card); color:var(--muted);
+    width:38px; height:38px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
   }
-  .icon-btn:active{transform:scale(.96)}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
-  /* settings */
-  #settings{padding:16px; margin-bottom:14px; display:none}
+  .icon-btn:hover{color:var(--dark); border-color:#d4d6da}
+  .icon-btn .ic{width:17px; height:17px}
+  .icon-btn:active{transform:scale(.95)}
+
+  /* ===== 공통 카드 ===== */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow)}
+  .card-head{display:flex; align-items:center; gap:8px; padding:18px 20px 0}
+  .card-head h2{font-size:16.5px; font-weight:800; margin:0; flex:1; letter-spacing:-.01em}
+  .card-head .sub{font-size:12.5px; color:var(--muted)}
+  .chip{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:999px;
+    background:#f1f2f4; color:var(--muted); font-size:12px; font-weight:600;
+  }
+
+  /* ===== 배너/설정 ===== */
+  .banner{padding:12px 16px; margin:0 0 16px; border-radius:var(--r-md); font-size:13px;
+    background:#fff7e6; border:1px solid #ffe0a3; color:#7a5b00}
+  #settings{padding:18px 20px; margin-bottom:16px; display:none}
   #settings.open{display:block}
-  #settings h2{font-size:14px; margin:0 0 12px; color:var(--muted); font-weight:600}
+  #settings h2{font-size:14px; margin:0 0 12px; color:var(--muted); font-weight:700}
   .field{margin-bottom:10px}
   .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px}
   .field input{
-    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px;
-    font-size:15px; background:#fbfcfe; color:var(--text);
+    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:var(--r-sm);
+    font-size:14.5px; background:#fafafa; color:var(--text); font-family:inherit;
   }
-  .field input:focus{outline:none; border-color:var(--brand); background:#fff}
+  .field input:focus{outline:none; border-color:var(--dark); background:#fff}
   .row2{display:flex; gap:10px}
   .row2 .field{flex:1}
   .pw{position:relative}
-  .pw button{
-    position:absolute; right:6px; top:50%; transform:translateY(-50%);
-    border:none; background:transparent; color:var(--muted); font-size:13px; cursor:pointer; padding:6px;
-  }
+  .pw button{position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    border:none; background:transparent; color:var(--muted); font-size:13px; cursor:pointer; padding:6px}
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:6px;
-    border:none; border-radius:10px; padding:11px 16px; font-size:15px; font-weight:600;
-    cursor:pointer; background:var(--brand); color:#fff;
+    border:none; border-radius:999px; padding:11px 20px; font-size:14.5px; font-weight:700;
+    cursor:pointer; background:var(--dark); color:#fff; font-family:inherit;
   }
-  .btn:active{background:var(--brand-d)}
-  .btn.ghost{background:#eef2fb; color:var(--brand)}
+  .btn:active{opacity:.85}
+  .btn.ghost{background:#f1f2f4; color:var(--text)}
   .btn.block{width:100%}
   .hint{font-size:12px; color:var(--muted); margin-top:8px}
-  .hint a{color:var(--brand)}
 
-  /* ===== calendar ===== */
-  #calCard{padding:14px 14px 16px; margin-bottom:14px}
-  .cal-head{display:flex; align-items:center; gap:8px; margin-bottom:12px}
-  .cal-title{flex:1; font-size:16px; font-weight:700; text-align:center}
+  /* ===== 레이아웃 ===== */
+  .layout{display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:18px; align-items:start}
+  .main-col{display:flex; flex-direction:column; gap:18px; min-width:0}
+  .side-col{display:flex; flex-direction:column; gap:18px; min-width:0}
+  .sub-row{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start}
+  @media(max-width:1080px){
+    .layout{grid-template-columns:1fr}
+    .side-col{order:2}
+  }
+  @media(max-width:760px){ .sub-row{grid-template-columns:1fr} }
+  @media(max-width:700px){
+    .cal-grid{padding:0 10px; gap:3px}
+    .cal-cell{min-height:58px; padding:4px 5px; border-radius:9px}
+    .cal-day{width:21px; height:21px; font-size:11.5px}
+    .cal-ev{font-size:9.5px; padding:1px 4px; -webkit-line-clamp:1}
+  }
+
+  /* ===== 달력 ===== */
+  #calCard{padding:0 0 18px}
+  .cal-head{display:flex; align-items:center; gap:8px; padding:18px 20px 14px}
+  .cal-title{font-size:19px; font-weight:800; letter-spacing:-.01em; margin-right:auto}
   .cal-nav{
     border:1px solid var(--line); background:#fff; color:var(--text);
-    width:34px; height:34px; border-radius:9px; font-size:16px; cursor:pointer;
+    width:34px; height:34px; border-radius:50%; font-size:15px; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
   }
-  .cal-nav:active{background:#f0f2f7}
+  .cal-nav:active{background:#f1f2f4}
   .cal-today{
-    border:1px solid var(--line); background:#eef2fb; color:var(--brand);
-    height:34px; padding:0 12px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer;
+    border:none; background:var(--dark); color:#fff;
+    height:34px; padding:0 16px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
   }
-  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
-  .cal-wd{text-align:center; font-size:12px; color:var(--muted); padding:4px 0; font-weight:600}
-  .cal-wd.sun{color:#e5484d}
-  .cal-wd.sat{color:#2f6df6}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; padding:0 16px}
+  .cal-wd{text-align:center; font-size:11.5px; color:var(--muted); padding:4px 0 7px; font-weight:700; letter-spacing:.04em}
+  .cal-wd.sun{color:#e5766f}
+  .cal-wd.sat{color:#7d95c9}
   .cal-cell{
-    position:relative; min-height:94px; border:1px solid var(--line); border-radius:9px;
-    background:#fff; padding:6px 7px; cursor:pointer; overflow:hidden; transition:.12s;
+    position:relative; min-height:92px; border:1px solid transparent; border-radius:12px;
+    background:#f7f7f5; padding:7px 8px; cursor:pointer; overflow:hidden; transition:.12s;
   }
-  .cal-cell:hover{border-color:#c4cede}
-  .cal-cell.other{background:#fafbfd; color:#c2cad8; cursor:default}
-  .cal-cell.other:hover{border-color:var(--line)}
-  .cal-cell.today{border-color:var(--brand); background:#f3f7ff}
-  .cal-cell.day-blue{background:#dbeafe}
-  .cal-cell.day-red{background:#fee2e2}
-  .cal-cell.day-blue:hover{border-color:#93b4f5}
-  .cal-cell.day-red:hover{border-color:#f5a8a8}
-  .cal-cell.sel{outline:2px solid var(--brand); outline-offset:-1px}
-  .cal-day{font-size:13px; font-weight:600}
-  .cal-cell.sun .cal-day{color:#e5484d}
-  .cal-cell.sat .cal-day{color:#2f6df6}
-  .cal-cell.other .cal-day{color:#c2cad8}
+  .cal-cell:hover{border-color:#d4d6da}
+  .cal-cell.other{background:transparent; cursor:default}
+  .cal-cell.other:hover{border-color:transparent}
+  .cal-cell.day-blue{background:var(--day-blue)}
+  .cal-cell.day-red{background:var(--day-red)}
+  .cal-cell.day-blue:hover{border-color:#a8c4f0}
+  .cal-cell.day-red:hover{border-color:#f0b3b3}
+  .cal-cell.sel{border-color:var(--dark)}
+  .cal-day{
+    font-size:12.5px; font-weight:700; width:24px; height:24px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin-bottom:2px;
+  }
+  .cal-cell.today .cal-day{background:var(--dark); color:#fff}
+  .cal-cell.sun .cal-day{color:#e5766f}
+  .cal-cell.sat .cal-day{color:#7d95c9}
+  .cal-cell.today.sun .cal-day, .cal-cell.today.sat .cal-day{color:#fff}
+  .cal-cell.other .cal-day{color:#c6c9ce}
   .cal-ev{
-    margin-top:3px; font-size:11px; line-height:1.3; background:#eef2fb; color:var(--brand);
-    border-radius:4px; padding:2px 5px; white-space:normal; word-break:break-word;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    margin-top:3px; font-size:11px; line-height:1.3; background:#fff; color:var(--text);
+    border:1px solid var(--line); border-radius:6px; padding:2px 6px; white-space:normal; word-break:break-word;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-weight:600;
   }
-  .cal-more{font-size:10px; color:var(--muted); margin-top:2px; padding-left:2px}
+  .cal-cell.day-blue .cal-ev, .cal-cell.day-red .cal-ev{background:rgba(255,255,255,.72); border-color:transparent}
+  .cal-more{font-size:10px; color:var(--muted); margin-top:2px; padding-left:2px; font-weight:700}
 
-  /* ===== 달력 + 메모 레이아웃 ===== */
-  /* 배치: 달력 왼쪽 = 주요파일(투명, 길게), 오른쪽 = [1·2부의장] + Inbox */
-  .cal-notes{display:flex; flex-direction:column; gap:14px; margin-bottom:14px}
-  .cal-notes #calCard{margin-bottom:0}
-  .notes-col{display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start}
-  .key-col{display:flex; flex-direction:column}
-  .postit.p1, .postit.p2{min-height:300px}
-  .postit.inbox{grid-column:1 / -1; min-height:240px}
-  .postit.keyfiles{min-height:360px}
-  /* 넓은 화면: 달력은 기존 위치·폭 그대로. 주요파일=왼쪽 여백, 1·2부의장/Inbox=오른쪽 여백. 높이는 JS로 달력/파일목록에 맞춤 */
-  @media(min-width:1300px){
-    .cal-notes{display:block; position:relative}
-    .notes-col{
-      position:absolute; top:0; left:100%; margin-left:22px;
-      width:min(460px, calc(50vw - 436px));
-      height:var(--panelH); grid-template-rows: var(--calH) 1fr; align-content:stretch;
-    }
-    .key-col{
-      position:absolute; top:0; right:100%; margin-right:22px;
-      width:min(320px, calc(50vw - 452px));
-      height:var(--panelH);
-    }
-    .key-col .postit.keyfiles{flex:1; min-height:0}
-    .postit.p1, .postit.p2, .postit.inbox{min-height:0}
+  /* ===== 일정 적기 (day panel) ===== */
+  #dayPanel{padding:0 0 18px}
+  #dayPanel .dp-body{padding:12px 18px 0}
+  .dp-color{display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .dp-color .lbl{font-size:12px; color:var(--muted); margin-right:2px; font-weight:600}
+  .color-btn{
+    width:30px; height:30px; border-radius:50%; border:2px solid var(--line);
+    cursor:pointer; padding:0; font-size:12px; color:var(--muted); line-height:1;
   }
-  /* 포스트잇이 셀 높이를 채우고 내부에서 스크롤 */
-  .postit{display:flex; flex-direction:column; overflow:hidden}
-  .postit:not(.keyfiles) > .pi-list{flex:1 1 auto; min-height:0; overflow:auto}
-  /* 투명 포스트잇(주요파일) */
-  .postit.transparent{background:transparent; border:1.5px dashed #b9c2d4; box-shadow:none}
-  .postit.keyfiles .pi-head{color:#3a4256}
-  .postit.keyfiles .km-label{font-size:11px; color:#7a8296; font-weight:700; margin:0 0 5px}
-  .postit.keyfiles .pi-list.keymemo{flex:0 0 auto; max-height:78px; overflow:auto; margin-bottom:8px}
-  .postit.keyfiles .km-empty{padding:2px 0 8px}
-  .postit.keyfiles .pi-add{margin-bottom:11px}
-  .postit.keyfiles .pi-input{background:rgba(255,255,255,.75); border-color:#cdd5e3}
-  .postit.keyfiles .pi-addbtn{background:rgba(0,0,0,.08)}
-  .key-reg{
-    border:1px solid var(--brand); background:#eef3ff; color:var(--brand); border-radius:9px;
-    padding:9px 10px; font-size:13px; font-weight:700; cursor:pointer; margin-bottom:9px;
-  }
-  .key-reg:active{background:#dfe8ff}
-  .keyfiles-list{list-style:none; margin:0; padding:0; flex:1 1 auto; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:5px}
-  .kf-item{display:flex; align-items:center; gap:7px; background:rgba(255,255,255,.7); border:1px solid rgba(0,0,0,.06); border-radius:8px; padding:6px 8px}
-  .kf-ico{font-size:15px; flex-shrink:0}
-  .kf-main{flex:1; min-width:0}
-  .kf-name{display:block; font-size:12.5px; font-weight:600; color:#33301f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .kf-when{display:block; font-size:10.5px; color:#8a8296; margin-top:1px}
-  .kf-act{border:none; background:transparent; cursor:pointer; font-size:13px; text-decoration:none; color:#555; padding:2px; flex-shrink:0}
-  .kf-act.del{color:var(--danger)}
-  .kf-empty{font-size:12px; color:#9aa0ad; padding:8px 2px}
-  /* ===== 포스트잇 ===== */
-  .postit{
-    background:#fff3b0; border-radius:5px; padding:12px 13px 13px;
-    box-shadow:0 3px 9px rgba(30,30,20,.14); border:1px solid rgba(0,0,0,.05);
-  }
-  .postit.p2{background:#ffd9e0}
-  .postit.inbox{background:#c9efd8}
-  .pi-head{font-size:14px; font-weight:800; color:#3a3320; margin-bottom:9px; display:flex; align-items:center; gap:6px}
-  .pi-head .pi-count{font-size:11px; font-weight:600; color:#8a8055; margin-left:auto}
-  .pi-list{list-style:none; margin:0 0 9px; padding:0; display:flex; flex-direction:column; gap:5px}
-  .pi-item{display:flex; align-items:flex-start; gap:7px}
-  .pi-chk{width:16px; height:16px; margin:2px 0 0; flex-shrink:0; cursor:pointer; accent-color:#2f6df6}
-  .pi-text{flex:1; font-size:13.5px; color:#33301f; word-break:break-word; line-height:1.4; cursor:pointer}
-  .pi-item.done .pi-text{text-decoration:line-through; color:#9a916b}
-  .pi-del{border:none; background:transparent; color:#b0a678; font-size:16px; line-height:1; cursor:pointer; padding:0 2px; flex-shrink:0}
-  .pi-del:hover{color:#e5484d}
-  .pi-empty{font-size:12px; color:#9a916b; padding:2px 0 7px}
-  .pi-add{display:flex; gap:6px}
-  .pi-input{
-    flex:1; min-width:0; padding:7px 9px; border:1px solid rgba(0,0,0,.12); border-radius:7px;
-    font-size:13px; background:rgba(255,255,255,.65); color:#33301f; font-family:inherit;
-  }
-  .pi-input:focus{outline:none; border-color:#2f6df6; background:#fff}
-  .pi-addbtn{
-    border:none; background:rgba(0,0,0,.12); color:#3a3320; width:32px; border-radius:7px;
-    font-size:18px; cursor:pointer; flex-shrink:0; font-weight:700;
-  }
-  .pi-addbtn:active{background:rgba(0,0,0,.2)}
-
-  /* day panel */
-  #dayPanel{padding:14px; margin-bottom:14px; display:none}
-  #dayPanel.open{display:block}
-  .dp-head{display:flex; align-items:center; gap:8px; margin-bottom:10px}
-  .dp-head h2{font-size:15px; margin:0; flex:1}
-  .dp-close{border:none; background:transparent; color:var(--muted); font-size:20px; cursor:pointer; line-height:1; padding:2px 6px}
-  ul#dayEvents{list-style:none; margin:0 0 12px; padding:0}
+  .color-btn.blue{background:var(--day-blue)}
+  .color-btn.red{background:var(--day-red)}
+  .color-btn.plain{background:#fff}
+  .color-btn:hover{border-color:#c6c9ce}
+  .color-btn.on{border-color:var(--dark); box-shadow:0 0 0 2px rgba(27,30,35,.14)}
+  ul#dayEvents{list-style:none; margin:0 0 12px; padding:0; max-height:260px; overflow:auto}
   ul#dayEvents li{
-    display:flex; align-items:flex-start; gap:10px; padding:10px 11px; border:1px solid var(--line);
-    border-radius:10px; margin-bottom:6px; background:#fbfcff;
+    display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--line);
+    border-radius:var(--r-md); margin-bottom:6px; background:#fafafa;
   }
-  ul#dayEvents li.editing{border-color:var(--brand); background:#f3f7ff}
-  .ev-time{font-size:12px; font-weight:700; color:var(--brand); min-width:44px; padding-top:2px}
+  ul#dayEvents li.editing{border-color:var(--dark); background:#f1f2f4}
+  .ev-time{font-size:12px; font-weight:800; color:var(--brand); min-width:42px; padding-top:2px}
   .ev-time.none{color:var(--muted); font-weight:600}
   .ev-body{flex:1; min-width:0}
-  .ev-title{font-size:14px; font-weight:600; word-break:break-word}
-  .ev-detail{font-size:12.5px; color:var(--muted); white-space:pre-wrap; word-break:break-word; margin-top:3px}
-  .ev-edit,.ev-del{border:none; background:transparent; font-size:15px; cursor:pointer; padding:4px; line-height:1}
-  .ev-edit{color:var(--muted)}
-  .ev-del{color:var(--danger)}
-  .dp-empty{font-size:13px; color:var(--muted); padding:6px 2px 12px}
-  .dp-color{display:flex; align-items:center; gap:8px; margin-bottom:12px}
-  .dp-color .lbl{font-size:12.5px; color:var(--muted); margin-right:2px}
-  .color-btn{
-    width:32px; height:32px; border-radius:9px; border:2px solid var(--line);
-    cursor:pointer; padding:0; font-size:13px; color:var(--muted); line-height:1;
-  }
-  .color-btn.blue{background:#dbeafe}
-  .color-btn.red{background:#fee2e2}
-  .color-btn.plain{background:#fff}
-  .color-btn:hover{border-color:#c4cede}
-  .color-btn.on{border-color:var(--brand); box-shadow:0 0 0 2px rgba(47,109,246,.22)}
+  .ev-title{font-size:13.5px; font-weight:700; word-break:break-word}
+  .ev-detail{font-size:12px; color:var(--muted); white-space:pre-wrap; word-break:break-word; margin-top:2px}
+  .ev-edit,.ev-del{border:none; background:transparent; cursor:pointer; padding:4px; line-height:1;
+    display:flex; align-items:center; color:var(--muted)}
+  .ev-edit:hover{color:var(--dark)}
+  .ev-del:hover{color:var(--danger)}
+  .dp-empty{font-size:13px; color:var(--muted); padding:4px 2px 12px}
   .dp-add{display:flex; flex-direction:column; gap:8px}
   .dp-add .dp-row1{display:flex; gap:8px}
-  .dp-add input#evTime{
-    width:96px; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:#fbfcfe; text-align:center;
+  .dp-add input, .dp-add textarea{
+    border:1px solid var(--line); border-radius:var(--r-sm); font-size:14px; background:#fafafa;
+    color:var(--text); font-family:inherit; padding:10px 12px;
   }
-  .dp-add input.evtitle{
-    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:#fbfcfe;
-  }
-  .dp-add textarea#evDetail{
-    width:100%; min-height:66px; resize:vertical; padding:10px 12px; border:1px solid var(--line);
-    border-radius:10px; font-size:14px; background:#fbfcfe; color:var(--text); font-family:inherit; line-height:1.5;
-  }
-  .dp-add input:focus, .dp-add textarea:focus{outline:none; border-color:var(--brand); background:#fff}
+  .dp-add input#evTime{width:84px; text-align:center; padding:10px 6px}
+  .dp-add input.evtitle{flex:1; min-width:0}
+  .dp-add textarea#evDetail{width:100%; min-height:58px; resize:vertical; line-height:1.5}
+  .dp-add input:focus, .dp-add textarea:focus{outline:none; border-color:var(--dark); background:#fff}
   .dp-actions{display:flex; gap:8px; justify-content:flex-end}
-  .dp-add .btn{padding:10px 18px; flex-shrink:0}
+  .dp-add .btn{padding:9px 18px; flex-shrink:0; font-size:13.5px}
 
-  /* upload */
+  /* ===== 1·2부의장 메모 ===== */
+  .inbox-col{display:flex; flex-direction:column; gap:18px; min-width:0}
+  .inbox-card{padding:0 0 18px}
+  .inbox-card .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0}
+  .inbox-card .dot.d1{background:var(--dark)}
+  .inbox-card .dot.d2{background:var(--brand)}
+  .pi-wrap{padding:12px 18px 0; display:flex; flex-direction:column}
+  .pi-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:5px; max-height:220px; overflow:auto}
+  .pi-item{display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid var(--line); border-radius:var(--r-sm); background:#fafafa}
+  .pi-chk{width:16px; height:16px; margin:2px 0 0; flex-shrink:0; cursor:pointer; accent-color:var(--brand)}
+  .pi-text{flex:1; font-size:13.5px; word-break:break-word; line-height:1.4; cursor:pointer}
+  .pi-item.done{opacity:.6}
+  .pi-item.done .pi-text{text-decoration:line-through; color:var(--muted)}
+  .pi-del{border:none; background:transparent; color:var(--muted); font-size:16px; line-height:1; cursor:pointer; padding:0 2px; flex-shrink:0}
+  .pi-del:hover{color:var(--danger)}
+  .pi-empty{font-size:12.5px; color:var(--muted); padding:2px 0 8px}
+  .pi-add{display:flex; gap:6px}
+  .pi-input{
+    flex:1; min-width:0; padding:9px 12px; border:1px solid var(--line); border-radius:999px;
+    font-size:13px; background:#fafafa; color:var(--text); font-family:inherit;
+  }
+  .pi-input:focus{outline:none; border-color:var(--dark); background:#fff}
+  .pi-addbtn{
+    border:none; background:var(--dark); color:#fff; width:34px; height:34px; border-radius:50%;
+    font-size:17px; cursor:pointer; flex-shrink:0; font-weight:700;
+  }
+  .pi-addbtn:active{opacity:.85}
+  .pi-count{font-size:11.5px; font-weight:700; color:var(--muted)}
+
+  /* ===== 파일 등록 ===== */
+  #uploadCard{padding:0 0 18px}
+  #bar{height:3px; background:var(--brand); width:0; border-radius:3px; transition:width .2s; margin:10px 18px 0}
   #drop{
-    padding:26px 16px; margin-bottom:14px; text-align:center; border:2px dashed #c4cede;
-    border-radius:14px; background:#fbfcff; cursor:pointer; transition:.15s; color:var(--muted);
+    margin:12px 18px 0; padding:26px 16px; text-align:center; border:2px dashed #dcdee2;
+    border-radius:var(--r-md); background:#fff; cursor:pointer; transition:.15s; color:var(--muted);
   }
-  #drop.hot{border-color:var(--brand); background:#eef3ff; color:var(--brand)}
-  #drop .big{font-size:15px; color:var(--text); font-weight:600; margin-bottom:2px}
-  #drop.disabled{opacity:.55; cursor:not-allowed}
-  /* list */
-  .list-head{display:flex; align-items:center; gap:8px; padding:4px 4px 10px}
-  .list-head h2{font-size:15px; margin:0; flex:1}
-  .count{font-size:13px; color:var(--muted)}
-  ul#files{list-style:none; margin:0; padding:0}
-  li.file{
-    display:flex; align-items:center; gap:12px; padding:13px 14px; border-bottom:1px solid var(--line);
-  }
-  li.file:last-child{border-bottom:none}
-  .fico{width:38px; height:38px; border-radius:9px; background:#eef2fb; display:flex;
-    align-items:center; justify-content:center; font-size:18px; flex-shrink:0}
+  #drop:hover{border-color:var(--brand); color:var(--brand)}
+  #drop.hot{border-color:var(--brand); background:var(--brand-soft); color:var(--brand)}
+  #drop .big{font-size:14.5px; color:var(--text); font-weight:700; margin-bottom:2px}
+  #drop .sub{font-size:12.5px}
+  .up-opts{display:flex; align-items:center; gap:8px; margin:10px 18px 0}
+  .up-opts label{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--text); cursor:pointer}
+  .up-opts input{width:16px; height:16px; accent-color:var(--brand); cursor:pointer}
+  .up-opts label svg{color:var(--brand)}
+  .up-opts .desc{font-size:11.5px; color:var(--muted)}
+
+  /* ===== 받은 파일 ===== */
+  #filesCard{padding:0 0 8px}
+  ul#files{list-style:none; margin:8px 0 0; padding:0}
+  li.file{display:flex; align-items:center; gap:11px; padding:12px 18px; border-top:1px solid #f1f2f4}
+  li.file:first-child{border-top:none}
+  .fico{width:38px; height:38px; border-radius:12px; background:#fff; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--dark)}
+  .fico .ic{width:19px; height:19px}
+  li.file.key .fico{background:#fff; border-color:var(--brand); color:var(--brand)}
   .finfo{flex:1; min-width:0}
-  .fname{font-size:15px; font-weight:600; word-break:break-all; line-height:1.35}
-  .fmeta{font-size:12px; color:var(--muted)}
+  .fname{font-size:13.5px; font-weight:700; word-break:break-all; line-height:1.35}
+  .fmeta{font-size:11.5px; color:var(--muted)}
   .fmeta .sep{opacity:.5; margin:0 5px}
-  .fmeta .when{color:var(--brand); font-weight:600}
+  .fmeta .when{color:#6b7380; font-weight:600}
   .fmeta .when.pending{color:var(--muted); font-weight:400}
   .badge-new{
-    display:inline-block; margin-left:6px; padding:1px 6px; border-radius:20px;
-    background:#e8f5ec; color:var(--ok); font-size:10.5px; font-weight:700; vertical-align:1px;
+    display:inline-block; margin-left:6px; padding:1px 7px; border-radius:20px;
+    background:var(--brand); color:#fff; font-size:10px; font-weight:800; vertical-align:1px;
   }
+  .badge-key{
+    display:inline-flex; align-items:center; gap:3px; margin-left:6px; padding:1px 7px; border-radius:20px;
+    background:var(--brand-soft); color:var(--brand-d); font-size:10px; font-weight:800; vertical-align:1px;
+  }
+  .badge-key svg{width:11px; height:11px}
   .facts{display:flex; gap:6px; flex-shrink:0}
   .act{
-    border:1px solid var(--line); background:#fff; border-radius:9px; width:38px; height:38px;
-    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; text-decoration:none; color:var(--text);
+    border:1px solid var(--line); background:#fff; border-radius:50%; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none; color:var(--muted);
   }
-  .act:active{background:#f0f2f7}
-  .act.del{color:var(--danger)}
-  .empty{padding:34px 16px; text-align:center; color:var(--muted); font-size:14px}
-  .sec-label{font-size:12px; color:var(--muted); font-weight:600; margin:2px 4px 8px; letter-spacing:.02em}
-  /* progress */
-  #bar{height:3px; background:var(--brand); width:0; border-radius:3px; transition:width .2s; margin-bottom:10px}
+  .act:hover{color:var(--dark); border-color:#d4d6da}
+  .act:active{background:#f1f2f4}
+  .act.del:hover{color:var(--danger)}
+  .empty{padding:30px 16px; text-align:center; color:var(--muted); font-size:13.5px}
+
   /* toast */
   #toast{
     position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(20px);
-    background:#1c2430; color:#fff; padding:11px 18px; border-radius:10px; font-size:14px;
-    opacity:0; pointer-events:none; transition:.25s; max-width:90%; text-align:center; z-index:50;
+    background:var(--dark); color:#fff; padding:11px 20px; border-radius:999px; font-size:13.5px;
+    opacity:0; pointer-events:none; transition:.25s; max-width:90%; text-align:center; z-index:50; font-weight:600;
   }
   #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
   #toast.err{background:var(--danger)}
-  .banner{padding:12px 14px; margin-bottom:14px; border-radius:12px; font-size:13px;
-    background:#fff7e6; border:1px solid #ffe0a3; color:#7a5b00}
   .spin{display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent;
     border-radius:50%; animation:sp .7s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>📁 파일 게시판</h1>
-    <button class="icon-btn" id="refreshBtn" title="새로고침">↻</button>
-    <button class="icon-btn" id="gearBtn" title="설정">⚙️</button>
-  </header>
+<div class="shell">
+  <div class="topbar">
+    <div class="logo">
+      <span class="mark">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7.5z"/>
+          <path d="M14.5 3v4.5H19"/><path d="M8.5 12.5h7"/><path d="M8.5 16h4.5"/>
+        </svg>
+      </span>부의장실 게시판
+    </div>
+    <div class="sp"></div>
+    <button class="icon-btn" id="refreshBtn" title="새로고침">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4.5V10h-5.5"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="gearBtn" title="설정">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.1"/>
+        <path d="M19.4 14.5a1.5 1.5 0 0 0 .3 1.7l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-2.5 1v.3a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-2.6-1l-.1.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0-1-2.5H4.5a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1-2.6l-.1-.1a1.8 1.8 0 1 1 2.6-2.6l.1.1a1.5 1.5 0 0 0 2.5-1V4.5a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 2.5 1l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0 1 2.5h.3a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.4.9z"/>
+      </svg>
+    </button>
+  </div>
 
   <div id="setupBanner" class="banner" style="display:none">
-    처음이라면 <b>⚙️ 설정</b>에서 GitHub 저장소 정보를 입력해 주세요.
+    처음이라면 오른쪽 위 <b>설정(톱니바퀴)</b>에서 GitHub 저장소 정보를 입력해 주세요.
   </div>
 
   <section class="card" id="settings">
@@ -316,7 +353,7 @@
       </div>
     </div>
     <div class="field">
-      <label>액세스 토큰 (업로드·삭제·일정 등록 시 필요, 조회는 없어도 됨)</label>
+      <label>액세스 토큰 (업로드·삭제·일정 등록 시 필요)</label>
       <div class="pw">
         <input id="token" type="password" placeholder="github_pat_... 또는 ghp_..." autocomplete="off">
         <button type="button" id="togglePw">보기</button>
@@ -326,65 +363,95 @@
     <p class="hint">토큰은 이 브라우저에만 저장되며 외부로 전송되지 않아요. 저장소는 <b>public</b>이어야 링크로 다운로드가 됩니다.</p>
   </section>
 
-  <!-- ===== 달력 + 메모 ===== -->
-  <div class="sec-label">📅 일정 · 메모</div>
-  <div class="cal-notes">
-    <section class="card" id="calCard">
-      <div class="cal-head">
-        <button class="cal-nav" id="prevM" title="이전 달">‹</button>
-        <div class="cal-title" id="calTitle">—</div>
-        <button class="cal-today" id="todayBtn" title="오늘로">오늘</button>
-        <button class="cal-nav" id="nextM" title="다음 달">›</button>
+  <div class="layout">
+    <!-- ===== 왼쪽: 달력 + (일정 적기 · 1·2부의장) ===== -->
+    <div class="main-col">
+      <section class="card" id="calCard">
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle">—</div>
+          <button class="cal-today" id="todayBtn" title="오늘로">오늘</button>
+          <button class="cal-nav" id="prevM" title="이전 달">‹</button>
+          <button class="cal-nav" id="nextM" title="다음 달">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </section>
+
+      <div class="sub-row">
+        <section class="card" id="dayPanel">
+          <div class="card-head">
+            <h2 id="dpTitle">일정 적기</h2>
+            <span class="chip" id="dpChip">오늘</span>
+          </div>
+          <div class="dp-body">
+            <div class="dp-color">
+              <span class="lbl">날짜 배경</span>
+              <button class="color-btn plain" id="colNone" title="색 없음">✕</button>
+              <button class="color-btn blue" id="colBlue" title="옅은 파랑"></button>
+              <button class="color-btn red" id="colRed" title="옅은 빨강"></button>
+            </div>
+            <ul id="dayEvents"></ul>
+            <div class="dp-empty" id="dpEmpty" style="display:none">등록된 일정이 없어요.</div>
+            <div class="dp-add">
+              <div class="dp-row1">
+                <input type="text" id="evTime" inputmode="numeric" maxlength="5" placeholder="1430" title="시간(선택) — 숫자로 입력">
+                <input type="text" class="evtitle" id="evTitle" placeholder="일정 제목">
+              </div>
+              <textarea id="evDetail" placeholder="세부사항 (선택) — 장소, 참석자, 준비물, 메모 등"></textarea>
+              <div class="dp-actions">
+                <button class="btn ghost" id="evCancel" style="display:none">취소</button>
+                <button class="btn" id="evAdd">추가</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="inbox-col">
+          <section class="card inbox-card" id="inboxCard1">
+            <div class="card-head">
+              <span class="dot d1"></span>
+              <h2>1부의장</h2>
+              <span class="pi-count" id="inboxCount1"></span>
+            </div>
+            <div class="pi-wrap" id="inboxBody1"></div>
+          </section>
+
+          <section class="card inbox-card" id="inboxCard2">
+            <div class="card-head">
+              <span class="dot d2"></span>
+              <h2>2부의장</h2>
+              <span class="pi-count" id="inboxCount2"></span>
+            </div>
+            <div class="pi-wrap" id="inboxBody2"></div>
+          </section>
+        </div>
       </div>
-      <div class="cal-grid" id="calGrid"></div>
-    </section>
-    <div class="key-col" id="keyCol"></div>
-    <div class="notes-col" id="notesCol"></div>
-  </div>
-
-  <section class="card" id="dayPanel">
-    <div class="dp-head">
-      <h2 id="dpTitle">날짜</h2>
-      <button class="dp-close" id="dpClose" title="닫기">×</button>
     </div>
-    <div class="dp-color">
-      <span class="lbl">날짜 배경</span>
-      <button class="color-btn plain" id="colNone" title="색 없음">✕</button>
-      <button class="color-btn blue" id="colBlue" title="옅은 파랑"></button>
-      <button class="color-btn red" id="colRed" title="옅은 빨강"></button>
-    </div>
-    <ul id="dayEvents"></ul>
-    <div class="dp-empty" id="dpEmpty" style="display:none">등록된 일정이 없어요.</div>
-    <div class="dp-add">
-      <div class="dp-row1">
-        <input type="text" id="evTime" inputmode="numeric" maxlength="5" placeholder="예: 1430" title="시간(선택) — 숫자로 입력">
-        <input type="text" class="evtitle" id="evTitle" placeholder="일정 제목">
-      </div>
-      <textarea id="evDetail" placeholder="세부사항 (선택) — 장소, 참석자, 준비물, 메모 등"></textarea>
-      <div class="dp-actions">
-        <button class="btn ghost" id="evCancel" style="display:none">취소</button>
-        <button class="btn" id="evAdd">추가</button>
-      </div>
-    </div>
-  </section>
 
-  <!-- ===== 파일 업로드 ===== -->
-  <div class="sec-label">📎 파일</div>
-  <div id="bar"></div>
+    <!-- ===== 오른쪽: 파일 등록 + 받은 파일 ===== -->
+    <aside class="side-col">
+      <section class="card" id="uploadCard">
+        <div class="card-head"><h2>파일 등록</h2></div>
+        <div id="bar"></div>
+        <div id="drop">
+          <div class="big">파일을 끌어다 놓거나 눌러서 선택</div>
+          <div class="sub" id="dropSub">여러 개도 한 번에 올릴 수 있어요</div>
+          <input type="file" id="fileInput" multiple hidden>
+        </div>
+        <div class="up-opts">
+          <label><input type="checkbox" id="asKey"><svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px"><path d="M9 3.5h6"/><path d="M10 3.5v5.2L7.2 12.4h9.6L14 8.7V3.5"/><path d="M12 12.4V20.5"/></svg> 주요파일로 등록</label>
+          <span class="desc">체크하면 주요파일로 표시돼요</span>
+        </div>
+      </section>
 
-  <div id="drop">
-    <div class="big">파일을 여기로 끌어다 놓거나 눌러서 선택</div>
-    <div id="dropSub">여러 개도 한 번에 올릴 수 있어요</div>
-    <input type="file" id="fileInput" multiple hidden>
-  </div>
-
-  <div class="card" id="filesCard">
-    <div class="list-head" style="padding:14px 14px 10px">
-      <h2>파일 목록</h2>
-      <span class="count" id="count"></span>
-    </div>
-    <ul id="files"></ul>
-    <div class="empty" id="empty" style="display:none">아직 올라온 파일이 없어요.</div>
+      <section class="card" id="filesCard">
+        <div class="card-head">
+          <h2>받은 파일</h2>
+          <span class="chip" id="count"></span>
+        </div>
+        <ul id="files"></ul>
+        <div class="empty" id="empty" style="display:none">아직 올라온 파일이 없어요.</div>
+      </section>
+    </aside>
   </div>
 </div>
 
@@ -394,7 +461,9 @@
 const $ = s => document.querySelector(s);
 const LS = 'fileboard.cfg.v1';
 let cfg = { owner:'', repo:'', branch:'main', folder:'uploads', token:'' };
-let listing = [];
+let listing = [];      // 일반 파일 (uploads 폴더)
+let keyListing = [];   // 주요파일 (key 폴더)
+const KEY_FOLDER = 'key';
 
 // ---------- config ----------
 function loadCfg(){
@@ -428,9 +497,18 @@ function headers(auth){
 }
 function encPath(p){ return p.split('/').map(encodeURIComponent).join('/'); }
 
+async function msg(r){
+  try{ const j = await r.json();
+    if(r.status===401) return '토큰이 없거나 잘못됐어요 (401)';
+    if(r.status===403) return '권한이 없어요 (403)';
+    if(r.status===409) return '브랜치 충돌이 발생했어요 (409). 새로고침 후 다시 시도하세요';
+    return (j.message||('오류 '+r.status));
+  }catch(e){ return '오류 '+r.status; }
+}
+
 // ---------- 업로드 시각(최근 커밋 시각) ----------
 const DATE_LS = 'fileboard.dates.v1';
-let fileDates = {};                       // { "경로|sha": "ISO시각" }
+let fileDates = {};
 try{ fileDates = JSON.parse(localStorage.getItem(DATE_LS)) || {}; }catch(e){ fileDates = {}; }
 
 function dateKey(it){ return it.path + '|' + it.sha; }
@@ -442,7 +520,7 @@ function saveDates(){
   dateSaveT = setTimeout(()=>{
     try{
       const keys = Object.keys(fileDates);
-      if(keys.length > 600){                       // 오래된 캐시 정리
+      if(keys.length > 600){
         const trimmed = {}; keys.slice(-400).forEach(k=>trimmed[k]=fileDates[k]); fileDates = trimmed;
       }
       localStorage.setItem(DATE_LS, JSON.stringify(fileDates));
@@ -457,19 +535,11 @@ function fmtDateTime(iso){
   if(isNaN(d.getTime())) return '';
   return `${d.getFullYear()}.${p2(d.getMonth()+1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
 }
-function fmtDateShort(iso){
-  if(!iso) return '';
-  const d = new Date(iso);
-  if(isNaN(d.getTime())) return '';
-  return `${p2(d.getMonth()+1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
-}
-function isNew(iso){                                // 24시간 이내면 NEW
+function isNew(iso){
   if(!iso) return false;
   const t = new Date(iso).getTime();
   return !isNaN(t) && (Date.now() - t) < 24*60*60*1000;
 }
-
-// 최신 등록 파일이 위로
 function newestFirst(a,b){
   const da = getDate(a), db = getDate(b);
   if(da && db){ if(da !== db) return db.localeCompare(da); }
@@ -478,13 +548,12 @@ function newestFirst(a,b){
   return a.name.localeCompare(b.name,'ko');
 }
 
-// 각 파일의 최근 커밋 시각을 조회(캐시에 없는 것만)
 async function fillDates(items, onChange){
   const need = (items||[]).filter(it => it && it.sha && !getDate(it));
   if(!need.length || !ready()) return;
   const base = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/commits`;
   let changed = false;
-  for(let i=0;i<need.length;i+=5){                  // 5개씩 병렬
+  for(let i=0;i<need.length;i+=5){
     await Promise.all(need.slice(i,i+5).map(async it=>{
       try{
         const url = `${base}?path=${encodeURIComponent(it.path)}&sha=${encodeURIComponent(cfg.branch)}&per_page=1`;
@@ -500,36 +569,112 @@ async function fillDates(items, onChange){
   if(changed && onChange) onChange();
 }
 
+// ---------- 파일 목록 (일반 + 주요파일 통합) ----------
 async function loadFiles(){
-  if(!ready()){ $('#setupBanner').style.display='block'; render([]); return; }
+  if(!ready()){ $('#setupBanner').style.display='block'; renderFiles(); return; }
   $('#setupBanner').style.display='none';
   $('#count').textContent='불러오는 중…';
   const url = `${apiBase()}/${encPath(cfg.folder)}?ref=${encodeURIComponent(cfg.branch)}`;
   try{
     const r = await fetch(url, {headers:headers(true)});
-    if(r.status===404){ listing=[]; render([]); return; } // 빈 폴더
+    if(r.status===404){ listing=[]; renderFiles(); return; }
     if(!r.ok) throw new Error(await msg(r));
     const data = await r.json();
-    listing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort(newestFirst);
-    render(listing);
-    fillDates(listing, ()=>{ listing.sort(newestFirst); render(listing); });
+    listing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file');
+    renderFiles();
+    fillDates(listing, renderFiles);
   }catch(e){
     $('#count').textContent='';
     toast('목록을 불러오지 못했어요: '+e.message, true);
-    render([]);
+    renderFiles();
   }
 }
 
-async function uploadOne(file){
+async function loadKeyFiles(){
+  if(!ready()){ keyListing=[]; renderFiles(); return; }
+  try{
+    const url = `${apiBase()}/${encPath(KEY_FOLDER)}?ref=${encodeURIComponent(cfg.branch)}`;
+    const r = await fetch(url, {headers:headers(true), cache:'no-store'});
+    if(r.status===404){ keyListing=[]; renderFiles(); return; }
+    if(!r.ok) throw new Error(await msg(r));
+    const data = await r.json();
+    keyListing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file');
+    renderFiles();
+    fillDates(keyListing, renderFiles);
+  }catch(e){ toast('주요파일 목록을 불러오지 못했어요: '+e.message, true); }
+}
+
+function isKeyItem(it){ return it.path && it.path.indexOf(KEY_FOLDER+'/')===0; }
+
+function renderFiles(){
+  const items = [...keyListing, ...listing].sort(newestFirst);
+  const ul = $('#files'); ul.innerHTML='';
+  $('#count').textContent = items.length ? items.length+'개' : '';
+  $('#empty').style.display = items.length? 'none':'block';
+  for(const it of items){
+    const li = document.createElement('li'); li.className='file'+(isKeyItem(it)?' key':'');
+    const dl = it.download_url || `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${encPath(it.path)}`;
+    li.innerHTML = `
+      <div class="fico">${iconFor(it.name)}</div>
+      <div class="finfo">
+        <div class="fname">${esc(it.name)}${isKeyItem(it)?'<span class="badge-key">' + PIN_ICON + '주요</span>':''}${isNew(getDate(it))?'<span class="badge-new">NEW</span>':''}</div>
+        <div class="fmeta">${fmtSize(it.size)}<span class="sep">·</span>${
+          getDate(it)
+            ? `<span class="when">${fmtDateTime(getDate(it))}</span>`
+            : '<span class="when pending">시각 확인 중…</span>'
+        }</div>
+      </div>
+      <div class="facts">
+        <a class="act" href="${dl}" download="${esc(it.name)}" title="다운로드">${ICON_DOWNLOAD}</a>
+        <button class="act del" title="삭제">${ICON_TRASH}</button>
+      </div>`;
+    li.querySelector('.del').addEventListener('click',()=>deleteFile(it));
+    ul.appendChild(li);
+  }
+}
+
+/* ===== 모노톤 아이콘 ===== */
+const svgIcon = (paths, cls) =>
+  `<svg class="ic${cls?' '+cls:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+// 문서 외곽(파일 모양) — 모든 파일 아이콘의 기본 실루엣
+const DOC_SHELL = '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>';
+const PIN_ICON = '<svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3.5h6"/><path d="M10 3.5v5.2L7.2 12.4h9.6L14 8.7V3.5"/><path d="M12 12.4V20.5"/></svg>';
+const ICON_DOWNLOAD = svgIcon('<path d="M12 4v11"/><path d="M8 11.5 12 15.5 16 11.5"/><path d="M5 19.5h14"/>','ic-sm');
+const ICON_TRASH    = svgIcon('<path d="M4.5 6.5h15"/><path d="M9.5 6.5V4.8h5v1.7"/><path d="M6.5 6.5 7.4 19a1.4 1.4 0 0 0 1.4 1.3h6.4a1.4 1.4 0 0 0 1.4-1.3l.9-12.5"/><path d="M10.5 10v6.5"/><path d="M13.5 10v6.5"/>','ic-sm');
+const ICON_EDIT     = svgIcon('<path d="M4.5 19.5h4L19 9a2.1 2.1 0 0 0-3-3L5.5 16.5z"/><path d="M14.5 7.5 17.5 10.5"/>','ic-sm');
+
+function iconFor(n){
+  const e=(n.split('.').pop()||'').toLowerCase();
+  if(['png','jpg','jpeg','gif','webp','svg','heic','bmp','tif','tiff'].includes(e))
+    return svgIcon('<rect x="3.5" y="5" width="17" height="14" rx="2.2"/><circle cx="9" cy="10" r="1.5"/><path d="M4.5 17 9.7 12.5l3 2.6 2.6-2.2 4.2 3.6"/>');
+  if(['mp4','mov','avi','mkv','webm','m4v'].includes(e))
+    return svgIcon('<rect x="3.5" y="5.5" width="17" height="13" rx="2.2"/><path d="M10.2 9.6 14.6 12l-4.4 2.4z"/>');
+  if(['mp3','wav','m4a','flac','aac','ogg'].includes(e))
+    return svgIcon('<path d="M9.5 17.5V6.2l9-1.7v11"/><circle cx="7" cy="17.8" r="2.5"/><circle cx="16" cy="15.8" r="2.5"/>');
+  if(e==='pdf')     return svgIcon(DOC_SHELL+'<path d="M8.5 13.5h1.6a1.2 1.2 0 0 1 0 2.4H8.5v-2.4z"/><path d="M8.5 15.9v2.2"/><path d="M13.5 13.5h1.4a1.4 1.4 0 0 1 1.4 1.4v1.8a1.4 1.4 0 0 1-1.4 1.4h-1.4z"/>');
+  if(['doc','docx','hwp','hwpx','odt','rtf','txt','md'].includes(e))
+    return svgIcon(DOC_SHELL+'<path d="M8.5 13h7"/><path d="M8.5 16h7"/><path d="M8.5 19h4"/>');
+  if(['xls','xlsx','csv','tsv','numbers'].includes(e))
+    return svgIcon(DOC_SHELL+'<path d="M8 13.5h8"/><path d="M8 17h8"/><path d="M12 12v8"/>');
+  if(['ppt','pptx','key'].includes(e))
+    return svgIcon(DOC_SHELL+'<rect x="8" y="13" width="8" height="5.5" rx="1"/>');
+  if(['zip','rar','7z','tar','gz','alz'].includes(e))
+    return svgIcon('<rect x="3.5" y="5.5" width="17" height="13" rx="2.2"/><path d="M12 5.5v3"/><path d="M12 10.5v2"/><rect x="10.4" y="14" width="3.2" height="3.4" rx="1"/>');
+  return svgIcon(DOC_SHELL+'<path d="M8.5 14h7"/><path d="M8.5 17.5h4.5"/>');
+}
+function fmtSize(b){ if(b==null)return''; const u=['B','KB','MB','GB']; let i=0,n=b;
+  while(n>=1024&&i<u.length-1){n/=1024;i++;} return (i?n.toFixed(1):n)+' '+u[i]; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// ---------- 업로드 (일반/주요 통합) ----------
+async function uploadOne(file, toKey){
   if(file.size > 100*1024*1024) throw new Error(file.name+' : 100MB를 넘는 파일은 올릴 수 없어요');
   const b64 = await toBase64(file);
-  const path = cfg.folder + '/' + file.name;
-  const existing = listing.find(x=>x.name===file.name);
-  const body = {
-    message: (existing?'update ':'add ') + file.name,
-    content: b64,
-    branch: cfg.branch
-  };
+  const folder = toKey ? KEY_FOLDER : cfg.folder;
+  const arr = toKey ? keyListing : listing;
+  const path = folder + '/' + file.name;
+  const existing = arr.find(x=>x.name===file.name);
+  const body = { message:(existing?'update ':'add ')+file.name, content:b64, branch:cfg.branch };
   if(existing) body.sha = existing.sha;
   const r = await fetch(`${apiBase()}/${encPath(path)}`, {
     method:'PUT', headers:{...headers(true),'Content-Type':'application/json'},
@@ -537,22 +682,36 @@ async function uploadOne(file){
   });
   if(!r.ok) throw new Error(await msg(r));
   const data = await r.json();
-  // 옵티미스틱 갱신: 반환된 content 정보로 목록 반영
   if(data && data.content){
     const c = data.content;
     const iso = (data.commit && data.commit.committer && data.commit.committer.date)
              || (data.commit && data.commit.author && data.commit.author.date)
              || new Date().toISOString();
-    setDate(c, iso);                       // 방금 올린 시각 기록
-    const idx = listing.findIndex(x=>x.name===c.name);
-    if(idx>=0) listing[idx] = {...listing[idx], ...c};
-    else listing.push(c);
-    listing.sort(newestFirst);             // 최신이 맨 위
-    render(listing);
+    setDate(c, iso);
+    const idx = arr.findIndex(x=>x.name===c.name);
+    if(idx>=0) arr[idx] = {...arr[idx], ...c}; else arr.push(c);
+    renderFiles();
   }
 }
 
+async function handleFiles(files){
+  if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return; }
+  if(!cfg.token){ toast('업로드하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
+  const toKey = $('#asKey').checked;
+  const arr = [...files];
+  let done=0, fail=0;
+  for(let i=0;i<arr.length;i++){
+    setBar((i)/arr.length*100);
+    toast(`업로드 중… (${i+1}/${arr.length}) ${arr[i].name}`);
+    try{ await uploadOne(arr[i], toKey); done++; }
+    catch(e){ fail++; toast(e.message, true); await sleep(1200); }
+  }
+  setBar(100); setTimeout(()=>setBar(0),500);
+  toast(fail? `완료: 성공 ${done} · 실패 ${fail}` : `${done}개 업로드 완료 ✓`);
+}
+
 async function deleteFile(item){
+  if(!cfg.token){ toast('삭제하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
   if(!confirm(`'${item.name}' 파일을 삭제할까요?`)) return;
   try{
     const r = await fetch(`${apiBase()}/${encPath(item.path)}`, {
@@ -561,89 +720,22 @@ async function deleteFile(item){
     });
     if(!r.ok) throw new Error(await msg(r));
     listing = listing.filter(x=>x.path!==item.path);
-    render(listing);
+    keyListing = keyListing.filter(x=>x.path!==item.path);
+    renderFiles();
     toast('삭제했어요');
   }catch(e){ toast('삭제 실패: '+e.message, true); }
 }
 
-async function msg(r){
-  try{ const j = await r.json();
-    if(r.status===401) return '토큰이 없거나 잘못됐어요 (401)';
-    if(r.status===403) return '권한이 없어요 (403)';
-    if(r.status===409) return '브랜치 충돌이 발생했어요 (409). 새로고침 후 다시 시도하세요';
-    return (j.message||('오류 '+r.status));
-  }catch(e){ return '오류 '+r.status; }
-}
-
-// ---------- upload flow ----------
-async function handleFiles(files){
-  if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return; }
-  if(!cfg.token){ toast('업로드하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
-  const arr = [...files];
-  let done=0, fail=0;
-  for(let i=0;i<arr.length;i++){
-    setBar((i)/arr.length*100);
-    toast(`업로드 중… (${i+1}/${arr.length}) ${arr[i].name}`);
-    try{ await uploadOne(arr[i]); done++; }
-    catch(e){ fail++; toast(e.message, true); await sleep(1200); }
-  }
-  setBar(100); setTimeout(()=>setBar(0),500);
-  toast(fail? `완료: 성공 ${done} · 실패 ${fail}` : `${done}개 업로드 완료 ✓`);
-}
-
-// ---------- render files ----------
-function render(items){
-  const ul = $('#files'); ul.innerHTML='';
-  $('#count').textContent = items.length ? items.length+'개' : '';
-  $('#empty').style.display = items.length? 'none':'block';
-  for(const it of items){
-    const li = document.createElement('li'); li.className='file';
-    const dl = it.download_url || `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${encPath(it.path)}`;
-    li.innerHTML = `
-      <div class="fico">${iconFor(it.name)}</div>
-      <div class="finfo">
-        <div class="fname">${esc(it.name)}${isNew(getDate(it))?'<span class="badge-new">NEW</span>':''}</div>
-        <div class="fmeta">${fmtSize(it.size)}<span class="sep">·</span>${
-          getDate(it)
-            ? `<span class="when">${fmtDateTime(getDate(it))}</span>`
-            : '<span class="when pending">시각 확인 중…</span>'
-        }</div>
-      </div>
-      <div class="facts">
-        <a class="act" href="${dl}" download="${esc(it.name)}" title="다운로드">⬇️</a>
-        <button class="act del" title="삭제">🗑️</button>
-      </div>`;
-    li.querySelector('.del').addEventListener('click',()=>deleteFile(it));
-    ul.appendChild(li);
-  }
-  scheduleSync();
-}
-function iconFor(n){
-  const e=(n.split('.').pop()||'').toLowerCase();
-  if(['png','jpg','jpeg','gif','webp','svg','heic'].includes(e))return '🖼️';
-  if(['mp4','mov','avi','mkv','webm'].includes(e))return '🎬';
-  if(['mp3','wav','m4a','flac'].includes(e))return '🎵';
-  if(['pdf'].includes(e))return '📕';
-  if(['doc','docx','hwp','hwpx'].includes(e))return '📘';
-  if(['xls','xlsx','csv'].includes(e))return '📊';
-  if(['ppt','pptx'].includes(e))return '📙';
-  if(['zip','rar','7z','tar','gz'].includes(e))return '🗜️';
-  return '📄';
-}
-function fmtSize(b){ if(b==null)return''; const u=['B','KB','MB','GB']; let i=0,n=b;
-  while(n>=1024&&i<u.length-1){n/=1024;i++;} return (i?n.toFixed(1):n)+' '+u[i]; }
-function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
 /* ================= 달력 / 일정 ================= */
 const SCHED_PATH = 'schedule.json';
-let schedule = {};          // { "YYYY-MM-DD": [ {id, time, title} ] }
-let schedSha = null;        // schedule.json 의 최신 sha
+let schedule = {};
+let schedSha = null;
 let schedLoaded = false;
 const today = new Date();
 let curY = today.getFullYear();
-let curM = today.getMonth();  // 0-based
-let selDate = null;           // "YYYY-MM-DD"
-let editingId = null;         // 수정 중인 일정 id
+let curM = today.getMonth();
+let selDate = null;
+let editingId = null;
 
 function ymd(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 function todayStr(){ return ymd(today.getFullYear(), today.getMonth(), today.getDate()); }
@@ -664,7 +756,7 @@ async function loadSchedule(){
     schedule = (parsed && typeof parsed==='object') ? parsed : {};
     schedLoaded = true;
     renderCalendar();
-    if(selDate) renderDayPanel();
+    renderDayPanel();
   }catch(e){
     schedLoaded = false;
     toast('일정을 불러오지 못했어요: '+e.message, true);
@@ -703,10 +795,9 @@ async function setDayColor(c){
   if(!cfg.token){ toast('색을 지정하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
   const colors = dayColors();
   const prev = colors[selDate] || null;
-  if(!c && !prev) return;             // 이미 색이 없음
-  if(c===prev) c = null;              // 같은 색을 다시 누르면 해제
+  if(!c && !prev) return;
+  if(c===prev) c = null;
   if(c) colors[selDate] = c; else delete colors[selDate];
-  if(Object.keys(colors).length===0) delete schedule._colors;
   renderCalendar(); renderColorBtns();
   try{
     await saveSchedule();
@@ -714,7 +805,6 @@ async function setDayColor(c){
   }catch(e){
     const rb = dayColors();
     if(prev) rb[selDate] = prev; else delete rb[selDate];
-    if(Object.keys(rb).length===0) delete schedule._colors;
     renderCalendar(); renderColorBtns();
     toast('색 저장 실패: '+e.message, true);
   }
@@ -735,11 +825,8 @@ function renderCalendar(){
   const prevDays = new Date(curY, curM, 0).getDate();
   const tStr = todayStr();
   const cells = [];
-  // leading (prev month)
   for(let i=0;i<startDow;i++){ cells.push({d:prevDays-startDow+1+i, other:true}); }
-  // current
   for(let d=1; d<=daysInMonth; d++){ cells.push({d, other:false}); }
-  // trailing to fill full weeks
   let trailN = 1;
   while(cells.length % 7 !== 0){ cells.push({d:trailN++, other:true}); }
 
@@ -771,10 +858,8 @@ function renderCalendar(){
     cell.addEventListener('click',()=>selectDate(ds));
     grid.appendChild(cell);
   });
-  scheduleSync();
 }
 
-// 시간 입력 정규화: '1430','14:30','930','9:30' 등 → 'HH:MM'. 빈값이면 '', 형식 오류면 null
 function parseTime(v){
   const s=(v||'').trim();
   if(!s) return '';
@@ -795,7 +880,7 @@ function parseTime(v){
 }
 
 function evSort(a,b){
-  const ta=a.time||'~', tb=b.time||'~'; // 시간 없는 항목은 뒤로
+  const ta=a.time||'~', tb=b.time||'~';
   if(ta===tb) return 0; return ta<tb?-1:1;
 }
 
@@ -804,8 +889,6 @@ function selectDate(ds){
   resetForm();
   renderCalendar();
   renderDayPanel();
-  $('#dayPanel').classList.add('open');
-  $('#dayPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 function fmtDateKo(ds){
@@ -817,6 +900,7 @@ function fmtDateKo(ds){
 function renderDayPanel(){
   if(!selDate) return;
   $('#dpTitle').textContent = fmtDateKo(selDate);
+  $('#dpChip').textContent = selDate===todayStr() ? '오늘' : '일정 적기';
   renderColorBtns();
   const ul = $('#dayEvents'); ul.innerHTML='';
   const evs = (schedule[selDate]||[]).slice().sort(evSort);
@@ -831,13 +915,12 @@ function renderDayPanel(){
         <div class="ev-title">${esc(ev.title)}</div>
         ${detailHtml}
       </div>
-      <button class="ev-edit" title="수정">✏️</button>
-      <button class="ev-del" title="삭제">🗑️</button>`;
+      <button class="ev-edit" title="수정">${ICON_EDIT}</button>
+      <button class="ev-del" title="삭제">${ICON_TRASH}</button>`;
     li.querySelector('.ev-edit').addEventListener('click',()=>editEvent(ev.id));
     li.querySelector('.ev-del').addEventListener('click',()=>deleteEvent(ev.id));
     ul.appendChild(li);
   });
-  scheduleSync();
 }
 
 function resetForm(){
@@ -858,7 +941,6 @@ function editEvent(id){
   $('#evCancel').style.display='';
   renderDayPanel();
   $('#evTitle').focus();
-  $('#dayPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 async function submitEvent(){
@@ -871,7 +953,7 @@ async function submitEvent(){
   if(!title){ toast('일정 제목을 입력하세요', true); $('#evTitle').focus(); return; }
   if(time===null){ toast('시간 형식이 올바르지 않아요 (예: 1430 또는 14:30)', true); $('#evTime').focus(); return; }
   if(!schedule[selDate]) schedule[selDate]=[];
-  const snapshot = JSON.parse(JSON.stringify(schedule[selDate])); // 롤백용
+  const snapshot = JSON.parse(JSON.stringify(schedule[selDate]));
   const wasEditing = !!editingId;
   if(wasEditing){
     const ev = schedule[selDate].find(x=>x.id===editingId);
@@ -879,7 +961,6 @@ async function submitEvent(){
   }else{
     schedule[selDate].push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), time, title, detail });
   }
-  // 낙관적 갱신
   resetForm();
   renderCalendar(); renderDayPanel();
   const addBtn=$('#evAdd'); addBtn.disabled=true; addBtn.textContent='저장…';
@@ -887,7 +968,6 @@ async function submitEvent(){
     await saveSchedule();
     toast(wasEditing?'일정을 수정했어요 ✓':'일정을 추가했어요 ✓');
   }catch(e){
-    // 롤백
     schedule[selDate] = snapshot;
     if(schedule[selDate].length===0) delete schedule[selDate];
     renderCalendar(); renderDayPanel();
@@ -909,7 +989,6 @@ async function deleteEvent(id){
     await saveSchedule();
     toast('일정을 삭제했어요');
   }catch(e){
-    // 롤백
     if(!schedule[selDate]) schedule[selDate]=[];
     schedule[selDate].push(removed);
     renderCalendar(); renderDayPanel();
@@ -917,15 +996,15 @@ async function deleteEvent(id){
   }
 }
 
-/* ================= 포스트잇 메모 ================= */
+/* ================= 1·2부의장 메모 ================= */
 const NOTES_PATH = 'notes.json';
-const B_CHAIR1 = { id:'chair1', title:'1부의장님', cls:'p1' };
-const B_CHAIR2 = { id:'chair2', title:'2부의장님', cls:'p2' };
-const B_INBOX  = { id:'inbox',  title:'📥 Inbox', cls:'inbox' };
-const KEY_FOLDER = 'key';   // 주요파일 저장 폴더
-let notes = {};        // { boardId: [ {id, text, done} ] }
+// 기존 '1부의장님'(chair1) · '2부의장님'(chair2) 보드 데이터를 그대로 사용
+const INBOX_BOARDS = [
+  { id:'chair1', body:'#inboxBody1', count:'#inboxCount1' },
+  { id:'chair2', body:'#inboxBody2', count:'#inboxCount2' },
+];
+let notes = {};
 let notesSha = null;
-let keyListing = [];   // 주요파일 목록
 
 async function loadNotes(){
   if(!ready()){ notes={}; notesSha=null; renderNotes(); return; }
@@ -959,85 +1038,39 @@ async function saveNotes(){
   if(data && data.content) notesSha = data.content.sha;
 }
 
-function wireMemo(div, boardId){
-  const items = notes[boardId]||[];
-  const ul = div.querySelector('.pi-list');
-  items.forEach(it=>{
-    const li = document.createElement('li');
-    li.className = 'pi-item'+(it.done?' done':'');
-    li.innerHTML = `
-      <input type="checkbox" class="pi-chk" ${it.done?'checked':''}>
-      <span class="pi-text">${esc(it.text)}</span>
-      <button class="pi-del" title="삭제">×</button>`;
-    li.querySelector('.pi-chk').addEventListener('change',()=>toggleNote(boardId,it.id));
-    li.querySelector('.pi-text').addEventListener('click',()=>toggleNote(boardId,it.id));
-    li.querySelector('.pi-del').addEventListener('click',()=>deleteNote(boardId,it.id));
-    ul.appendChild(li);
-  });
-  const input = div.querySelector('.pi-input');
-  const add = ()=>addNote(boardId, input.value);
-  div.querySelector('.pi-addbtn').addEventListener('click',add);
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter') add(); });
-}
-
-function makeBoard(b){
-  const items = notes[b.id]||[];
-  const remaining = items.filter(x=>!x.done).length;
-  const div = document.createElement('div');
-  div.className = 'postit '+b.cls;
-  div.dataset.board = b.id;
-  div.innerHTML = `
-    <div class="pi-head">${esc(b.title)}<span class="pi-count">${items.length?remaining+'/'+items.length:''}</span></div>
-    <ul class="pi-list"></ul>
-    ${items.length?'':'<div class="pi-empty">메모가 없어요</div>'}
-    <div class="pi-add">
-      <input class="pi-input" type="text" placeholder="">
-      <button class="pi-addbtn" title="추가">+</button>
-    </div>`;
-  wireMemo(div, b.id);
-  return div;
-}
-
-function makeKeyFilesPostit(){
-  const memoItems = notes['key']||[];
-  const div = document.createElement('div');
-  div.className = 'postit transparent keyfiles';
-  div.dataset.board = 'key';
-  div.innerHTML = `
-    <div class="pi-head">📌 주요파일</div>
-    <div class="km-label">메모</div>
-    <ul class="pi-list keymemo"></ul>
-    ${memoItems.length?'':'<div class="pi-empty km-empty">메모가 없어요</div>'}
-    <div class="pi-add">
-      <input class="pi-input" type="text" placeholder="">
-      <button class="pi-addbtn" title="추가">+</button>
-    </div>
-    <button class="key-reg" type="button">＋ 주요파일 등록</button>
-    <ul class="keyfiles-list"></ul>
-    <div class="kf-empty" style="display:none">등록된 파일이 없어요.</div>
-    <input type="file" class="key-input" multiple hidden>`;
-  wireMemo(div, 'key');
-  const fi = div.querySelector('.key-input');
-  div.querySelector('.key-reg').addEventListener('click',()=>{ if(requireWriteFiles()) fi.click(); });
-  fi.addEventListener('change',e=>{ uploadKey(e.target.files); e.target.value=''; });
-  renderKeyFilesInto(div.querySelector('.keyfiles-list'), div.querySelector('.kf-empty'));
-  return div;
-}
-
 function renderNotes(){
-  const col = $('#notesCol');
-  if(col){
-    col.innerHTML='';
-    col.appendChild(makeBoard(B_CHAIR1));
-    col.appendChild(makeBoard(B_CHAIR2));
-    col.appendChild(makeBoard(B_INBOX));
-  }
-  const kcol = $('#keyCol');
-  if(kcol){
-    kcol.innerHTML='';
-    kcol.appendChild(makeKeyFilesPostit());
-  }
-  scheduleSync();
+  INBOX_BOARDS.forEach(b=>{
+    const wrap = $(b.body);
+    if(!wrap) return;
+    const items = notes[b.id]||[];
+    const remaining = items.filter(x=>!x.done).length;
+    const cnt = $(b.count);
+    if(cnt) cnt.textContent = items.length ? remaining+'/'+items.length : '';
+    wrap.innerHTML = `
+      <ul class="pi-list"></ul>
+      ${items.length?'':'<div class="pi-empty">메모가 없어요</div>'}
+      <div class="pi-add">
+        <input class="pi-input" type="text" placeholder="메모 추가…">
+        <button class="pi-addbtn" title="추가">+</button>
+      </div>`;
+    const ul = wrap.querySelector('.pi-list');
+    items.forEach(it=>{
+      const li = document.createElement('li');
+      li.className = 'pi-item'+(it.done?' done':'');
+      li.innerHTML = `
+        <input type="checkbox" class="pi-chk" ${it.done?'checked':''}>
+        <span class="pi-text">${esc(it.text)}</span>
+        <button class="pi-del" title="삭제">×</button>`;
+      li.querySelector('.pi-chk').addEventListener('change',()=>toggleNote(b.id, it.id));
+      li.querySelector('.pi-text').addEventListener('click',()=>toggleNote(b.id, it.id));
+      li.querySelector('.pi-del').addEventListener('click',()=>deleteNote(b.id, it.id));
+      ul.appendChild(li);
+    });
+    const input = wrap.querySelector('.pi-input');
+    const add = ()=>addNote(b.id, input.value);
+    wrap.querySelector('.pi-addbtn').addEventListener('click',add);
+    input.addEventListener('keydown',e=>{ if(e.key==='Enter') add(); });
+  });
 }
 
 function requireWrite(){
@@ -1051,6 +1084,8 @@ async function persistNotes(snapshotJson){
   catch(e){ notes = JSON.parse(snapshotJson); renderNotes(); toast('메모 저장 실패: '+e.message, true); }
 }
 
+function boardCfg(boardId){ return INBOX_BOARDS.find(b=>b.id===boardId); }
+
 async function addNote(boardId, text){
   text = (text||'').trim();
   if(!text) return;
@@ -1059,7 +1094,8 @@ async function addNote(boardId, text){
   if(!notes[boardId]) notes[boardId]=[];
   notes[boardId].push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), text, done:false });
   renderNotes();
-  const ni = document.querySelector(`.postit[data-board="${boardId}"] .pi-input`);
+  const b = boardCfg(boardId);
+  const ni = b && $(b.body+' .pi-input');
   if(ni) ni.focus();
   await persistNotes(snap);
 }
@@ -1082,115 +1118,6 @@ async function deleteNote(boardId, id){
   await persistNotes(snap);
 }
 
-/* ===== 주요파일 (투명 포스트잇 안의 파일 보드) ===== */
-function requireWriteFiles(){
-  if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return false; }
-  if(!cfg.token){ toast('파일을 등록하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return false; }
-  return true;
-}
-
-async function loadKeyFiles(){
-  if(!ready()){ keyListing=[]; renderNotes(); return; }
-  try{
-    const url = `${apiBase()}/${encPath(KEY_FOLDER)}?ref=${encodeURIComponent(cfg.branch)}`;
-    const r = await fetch(url, {headers:headers(true), cache:'no-store'});
-    if(r.status===404){ keyListing=[]; renderNotes(); return; }
-    if(!r.ok) throw new Error(await msg(r));
-    const data = await r.json();
-    keyListing = (Array.isArray(data)?data:[]).filter(x=>x.type==='file').sort(newestFirst);
-    renderNotes();
-    fillDates(keyListing, ()=>{ keyListing.sort(newestFirst); renderNotes(); });
-  }catch(e){ toast('주요파일 목록을 불러오지 못했어요: '+e.message, true); }
-}
-
-async function uploadKeyOne(file){
-  if(file.size > 100*1024*1024) throw new Error(file.name+' : 100MB를 넘는 파일은 올릴 수 없어요');
-  const b64 = await toBase64(file);
-  const path = KEY_FOLDER + '/' + file.name;
-  const existing = keyListing.find(x=>x.name===file.name);
-  const body = { message:(existing?'update ':'add ')+file.name, content:b64, branch:cfg.branch };
-  if(existing) body.sha = existing.sha;
-  const r = await fetch(`${apiBase()}/${encPath(path)}`, {
-    method:'PUT', headers:{...headers(true),'Content-Type':'application/json'}, body:JSON.stringify(body)
-  });
-  if(!r.ok) throw new Error(await msg(r));
-  const data = await r.json();
-  if(data && data.content){
-    const c = data.content;
-    const iso = (data.commit && data.commit.committer && data.commit.committer.date)
-             || (data.commit && data.commit.author && data.commit.author.date)
-             || new Date().toISOString();
-    setDate(c, iso);
-    const idx = keyListing.findIndex(x=>x.name===c.name);
-    if(idx>=0) keyListing[idx] = {...keyListing[idx], ...c}; else keyListing.push(c);
-    keyListing.sort(newestFirst);
-    renderNotes();
-  }
-}
-
-async function uploadKey(files){
-  if(!requireWriteFiles()) return;
-  const arr = [...files]; let done=0, fail=0;
-  for(let i=0;i<arr.length;i++){
-    toast(`주요파일 업로드 중… (${i+1}/${arr.length}) ${arr[i].name}`);
-    try{ await uploadKeyOne(arr[i]); done++; }
-    catch(e){ fail++; toast(e.message, true); await sleep(1000); }
-  }
-  toast(fail? `완료: 성공 ${done} · 실패 ${fail}` : `주요파일 ${done}개 등록 완료 ✓`);
-}
-
-async function deleteKeyFile(item){
-  if(!requireWriteFiles()) return;
-  if(!confirm(`'${item.name}' 주요파일을 삭제할까요?`)) return;
-  try{
-    const r = await fetch(`${apiBase()}/${encPath(item.path)}`, {
-      method:'DELETE', headers:{...headers(true),'Content-Type':'application/json'},
-      body: JSON.stringify({ message:'delete '+item.name, sha:item.sha, branch:cfg.branch })
-    });
-    if(!r.ok) throw new Error(await msg(r));
-    keyListing = keyListing.filter(x=>x.path!==item.path);
-    renderNotes();
-    toast('주요파일을 삭제했어요');
-  }catch(e){ toast('삭제 실패: '+e.message, true); }
-}
-
-function renderKeyFilesInto(ul, emptyEl){
-  ul.innerHTML='';
-  emptyEl.style.display = keyListing.length? 'none':'block';
-  keyListing.forEach(it=>{
-    const dl = it.download_url || `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${encPath(it.path)}`;
-    const li = document.createElement('li'); li.className='kf-item';
-    li.innerHTML = `
-      <span class="kf-ico">${iconFor(it.name)}</span>
-      <span class="kf-main">
-        <span class="kf-name">${esc(it.name)}</span>
-        <span class="kf-when">${getDate(it) ? fmtDateShort(getDate(it)) : '…'}</span>
-      </span>
-      <a class="kf-act" href="${dl}" download="${esc(it.name)}" title="다운로드">⬇️</a>
-      <button class="kf-act del" title="삭제">🗑️</button>`;
-    li.querySelector('.del').addEventListener('click',()=>deleteKeyFile(it));
-    ul.appendChild(li);
-  });
-}
-
-/* ===== 포스트잇 높이를 달력·파일목록에 맞춤(넓은 화면 전용) ===== */
-function syncNotesHeight(){
-  const wrap = document.querySelector('.cal-notes'); if(!wrap) return;
-  if(window.innerWidth < 1300){
-    wrap.style.removeProperty('--calH'); wrap.style.removeProperty('--panelH');
-    return;
-  }
-  const cal = $('#calCard'), fcard = $('#filesCard');
-  if(!cal || !fcard) return;
-  const calRect = cal.getBoundingClientRect();
-  const fRect = fcard.getBoundingClientRect();
-  const calH = Math.round(calRect.height);
-  const panelH = Math.max(calH, Math.round(fRect.bottom - calRect.top));
-  wrap.style.setProperty('--calH', calH+'px');
-  wrap.style.setProperty('--panelH', panelH+'px');
-}
-function scheduleSync(){ requestAnimationFrame(()=>requestAnimationFrame(syncNotesHeight)); }
-
 // ---------- helpers ----------
 function toBase64(file){ return new Promise((res,rej)=>{
   const rd=new FileReader();
@@ -1204,27 +1131,24 @@ let toastT;
 function toast(t,err){ const el=$('#toast'); el.textContent=t; el.className='show'+(err?' err':'');
   clearTimeout(toastT); toastT=setTimeout(()=>el.className='',2600); }
 function refreshUploadState(){
-  const d=$('#drop');
-  if(cfg.token){ d.classList.remove('disabled'); $('#dropSub').textContent='여러 개도 한 번에 올릴 수 있어요'; }
-  else { d.classList.remove('disabled'); $('#dropSub').textContent='업로드하려면 설정에서 토큰이 필요해요'; }
+  if(cfg.token){ $('#dropSub').textContent='여러 개도 한 번에 올릴 수 있어요'; }
+  else { $('#dropSub').textContent='업로드하려면 설정에서 토큰이 필요해요'; }
 }
 
 // ---------- events ----------
 $('#gearBtn').onclick=()=>$('#settings').classList.toggle('open');
 $('#saveBtn').onclick=saveCfg;
 $('#refreshBtn').onclick=()=>{ loadFiles(); loadSchedule(); loadNotes(); loadKeyFiles(); };
-window.addEventListener('resize', syncNotesHeight);
 $('#togglePw').onclick=()=>{ const t=$('#token'); const s=t.type==='password'; t.type=s?'text':'password'; $('#togglePw').textContent=s?'숨김':'보기'; };
 $('#drop').onclick=()=>$('#fileInput').click();
 $('#fileInput').onchange=e=>{ handleFiles(e.target.files); e.target.value=''; };
 ['dragenter','dragover'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.add('hot');}));
 ['dragleave','drop'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.remove('hot');}));
 $('#drop').addEventListener('drop',e=>{ if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
-// 달력 이벤트
+// 달력
 $('#prevM').onclick=()=>{ curM--; if(curM<0){curM=11;curY--;} renderCalendar(); };
 $('#nextM').onclick=()=>{ curM++; if(curM>11){curM=0;curY++;} renderCalendar(); };
 $('#todayBtn').onclick=()=>{ curY=today.getFullYear(); curM=today.getMonth(); selectDate(todayStr()); };
-$('#dpClose').onclick=()=>{ $('#dayPanel').classList.remove('open'); selDate=null; resetForm(); renderCalendar(); };
 $('#evAdd').onclick=submitEvent;
 $('#evCancel').onclick=()=>{ resetForm(); renderDayPanel(); };
 $('#colNone').onclick=()=>setDayColor(null);
@@ -1238,13 +1162,14 @@ $('#evTime').addEventListener('blur',()=>{ const t=parseTime($('#evTime').value)
 loadCfg();
 refreshUploadState();
 if(!ready()){ $('#settings').classList.add('open'); $('#setupBanner').style.display='block'; }
+selDate = todayStr();          // 일정 적기 패널은 항상 열려 있고 기본은 오늘
 renderCalendar();
+renderDayPanel();
 renderNotes();
 loadFiles();
 loadSchedule();
 loadNotes();
 loadKeyFiles();
-scheduleSync();
 </script>
 </body>
 </html>
