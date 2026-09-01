@@ -377,6 +377,37 @@
   }
   .modal-cancel:hover{color:var(--dark)}
 
+  /* ===== PDF 견본/뷰어 ===== */
+  .dp-color{flex-wrap:wrap}
+  .dp-pdfs{display:flex; gap:6px; margin-left:auto; align-items:center}
+  .pdf-thumb{
+    width:40px; height:53px; border:1px solid var(--line); border-radius:6px; background:#fff;
+    object-fit:cover; object-position:top; cursor:zoom-in; box-shadow:0 2px 6px -2px rgba(25,28,32,.25);
+    transition:.12s;
+  }
+  .pdf-thumb:hover{border-color:var(--brand); transform:translateY(-1px)}
+  .pdf-thumb.loading{background:repeating-linear-gradient(45deg,#f4f4f6 0 6px,#ececef 6px 12px)}
+  .pdf-thumb.err{display:none}
+  .pdf-viewer{
+    background:#fff; border-radius:18px; width:100%; max-width:860px; max-height:92vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 24px 60px -18px rgba(20,23,28,.5);
+  }
+  .pv-head{display:flex; align-items:center; gap:10px; padding:13px 16px; border-bottom:1px solid var(--line)}
+  .pv-title{flex:1; min-width:0; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pv-dl{
+    font-size:12.5px; font-weight:700; color:var(--brand-d); text-decoration:none;
+    border:1px solid var(--brand); background:var(--brand-soft); border-radius:999px; padding:5px 13px; flex-shrink:0;
+  }
+  .pv-close{
+    border:none; background:transparent; color:var(--muted); font-size:24px; line-height:1;
+    cursor:pointer; padding:2px 6px; flex-shrink:0;
+  }
+  .pv-close:hover{color:var(--dark)}
+  .pv-pages{flex:1; overflow:auto; background:#eceef1; padding:14px; display:flex; flex-direction:column; gap:12px; align-items:center}
+  .pv-pages canvas{max-width:100%; height:auto; background:#fff; border-radius:4px; box-shadow:0 3px 12px -4px rgba(25,28,32,.35)}
+  .pv-msg{font-size:13px; color:var(--muted); padding:30px 10px}
+
   /* toast */
   #toast{
     position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(20px);
@@ -448,6 +479,10 @@
     .act{width:31px; height:31px}
     .act .ic-sm{width:14px; height:14px}
     .empty{padding:24px 14px}
+
+    .pdf-thumb{width:36px; height:48px}
+    .pv-pages{padding:10px; gap:8px}
+    .pdf-viewer{max-height:94vh; border-radius:14px}
 
     /* 설정 */
     #settings{padding:15px}
@@ -547,6 +582,7 @@
               <button class="color-btn plain" id="colNone" title="색 없음">✕</button>
               <button class="color-btn blue" id="colBlue" title="옅은 파랑"></button>
               <button class="color-btn red" id="colRed" title="옅은 빨강"></button>
+              <span class="dp-pdfs" id="dpPdfs" title="이 날짜의 PDF 미리보기"></span>
             </div>
             <ul id="dayEvents"></ul>
             <div class="dp-empty" id="dpEmpty" style="display:none">등록된 일정이 없어요.</div>
@@ -640,6 +676,17 @@
         <div class="pager" id="filePager"></div>
       </section>
     </aside>
+  </div>
+</div>
+
+<div class="modal-bg" id="pdfModal">
+  <div class="pdf-viewer">
+    <div class="pv-head">
+      <span class="pv-title" id="pvTitle"></span>
+      <a class="pv-dl" id="pvDl" href="#" download>다운로드</a>
+      <button class="pv-close" id="pvClose" type="button">×</button>
+    </div>
+    <div class="pv-pages" id="pvPages"></div>
   </div>
 </div>
 
@@ -1127,6 +1174,110 @@ function renderDayFiles(){
   });
 }
 
+// ---------- PDF 견본/뷰어 (pdf.js는 필요할 때만 로드) ----------
+const PDFJS_VER = '3.11.174';
+let pdfjsLoading = null;
+function loadPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve();
+  if(pdfjsLoading) return pdfjsLoading;
+  pdfjsLoading = new Promise((res, rej)=>{
+    const sc = document.createElement('script');
+    sc.src = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VER}/pdf.min.js`;
+    sc.onload = ()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VER}/pdf.worker.min.js`;
+      res();
+    };
+    sc.onerror = ()=>{ pdfjsLoading = null; rej(new Error('PDF 뷰어를 불러오지 못했어요')); };
+    document.head.appendChild(sc);
+  });
+  return pdfjsLoading;
+}
+function attFileUrl(f){
+  return f.url || `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${encPath(f.path)}`;
+}
+const pdfThumbCache = {};   // url -> dataURL
+let thumbToken = 0;
+
+async function renderPdfThumbs(){
+  const box = $('#dpPdfs'); if(!box) return;
+  const my = ++thumbToken;
+  const pdfs = filesOf(selDate).filter(f=>/\.pdf$/i.test(f.name)).slice(0,4);
+  box.innerHTML = '';
+  if(!pdfs.length) return;
+  const imgs = pdfs.map(f=>{
+    const img = document.createElement('img');
+    img.className = 'pdf-thumb loading';
+    img.title = f.name + ' — 누르면 크게 보기';
+    img.alt = f.name;
+    img.addEventListener('click', ()=>openPdfViewer(f));
+    box.appendChild(img);
+    return img;
+  });
+  for(let i=0;i<pdfs.length;i++){
+    const f = pdfs[i], img = imgs[i], url = attFileUrl(f);
+    if(pdfThumbCache[url]){ img.src = pdfThumbCache[url]; img.classList.remove('loading'); continue; }
+    try{
+      await loadPdfJs();
+      if(my !== thumbToken) return;               // 날짜가 바뀌었으면 중단
+      const doc = await window.pdfjsLib.getDocument({url}).promise;
+      const page = await doc.getPage(1);
+      const vp0 = page.getViewport({scale:1});
+      const vp = page.getViewport({scale: 120/vp0.width});
+      const cv = document.createElement('canvas');
+      cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+      await page.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
+      pdfThumbCache[url] = cv.toDataURL();
+      doc.destroy();
+      if(my !== thumbToken) return;
+      img.src = pdfThumbCache[url];
+      img.classList.remove('loading');
+    }catch(e){ img.classList.remove('loading'); img.classList.add('err'); }
+  }
+}
+
+const PV_MAX_PAGES = 30;
+let pvToken = 0;
+async function openPdfViewer(f){
+  const my = ++pvToken;
+  const url = attFileUrl(f);
+  $('#pvTitle').textContent = f.name;
+  const dl = $('#pvDl'); dl.href = url; dl.setAttribute('download', f.name);
+  const wrap = $('#pvPages');
+  wrap.innerHTML = '<div class="pv-msg">불러오는 중…</div>';
+  $('#pdfModal').classList.add('open');
+  try{
+    await loadPdfJs();
+    const doc = await window.pdfjsLib.getDocument({url}).promise;
+    if(my !== pvToken){ doc.destroy(); return; }
+    wrap.innerHTML = '';
+    const n = Math.min(doc.numPages, PV_MAX_PAGES);
+    const cssW = Math.min(wrap.clientWidth - 28, 820);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for(let i=1; i<=n; i++){
+      if(my !== pvToken){ doc.destroy(); return; }
+      const page = await doc.getPage(i);
+      const vp0 = page.getViewport({scale:1});
+      const vp = page.getViewport({scale: (cssW/vp0.width)*dpr});
+      const cv = document.createElement('canvas');
+      cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+      cv.style.width = cssW+'px';
+      wrap.appendChild(cv);
+      await page.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
+    }
+    if(doc.numPages > PV_MAX_PAGES){
+      const d = document.createElement('div');
+      d.className = 'pv-msg';
+      d.textContent = `${PV_MAX_PAGES}쪽까지만 표시했어요. 전체는 다운로드로 확인하세요 (총 ${doc.numPages}쪽)`;
+      wrap.appendChild(d);
+    }
+    doc.destroy();
+  }catch(e){
+    if(my === pvToken) wrap.innerHTML = `<div class="pv-msg">미리보기를 불러오지 못했어요: ${esc(e.message||'오류')}</div>`;
+  }
+}
+function closePdfViewer(){ pvToken++; $('#pdfModal').classList.remove('open'); $('#pvPages').innerHTML=''; }
+
 // ---------- 시간 색상 ----------
 function renderTimeColorBtns(){
   $('#tcNone').classList.toggle('on', !evColor);
@@ -1270,6 +1421,7 @@ function renderDayPanel(){
   $('#dpChip').textContent = selDate===todayStr() ? '오늘' : '일정 적기';
   renderColorBtns();
   renderDayFiles();
+  renderPdfThumbs();
   const ul = $('#dayEvents'); ul.innerHTML='';
   const evs = (schedule[selDate]||[]).slice().sort(evSort);
   $('#dpEmpty').style.display = evs.length? 'none':'block';
@@ -1529,6 +1681,8 @@ function closeDestModal(){ pendingFiles = null; $('#destModal').classList.remove
 $('#destKey').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handleFiles(f, true); };
 $('#destNormal').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handleFiles(f, false); };
 $('#destCancel').onclick=closeDestModal;
+$('#pvClose').onclick=closePdfViewer;
+$('#pdfModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closePdfViewer(); });
 $('#destModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDestModal(); });
 
 $('#drop').onclick=()=>$('#fileInput').click();
