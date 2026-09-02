@@ -407,16 +407,51 @@
   }
   .af-pen:hover{color:var(--brand); background:#eef4f3}
   .af-pen svg{width:12px; height:12px}
-  .af-title{display:block; text-align:left; padding:0 2px; line-height:1.35}
   .af-table td.c-att-cell{padding:4px 1px}
   .ox2{
-    width:100%; max-width:24px; height:23px; border:1px solid var(--line); background:#fff; border-radius:5px;
-    font-size:11.5px; font-weight:800; color:#c2c6cd; cursor:pointer; font-family:inherit; padding:0;
+    width:100%; height:22px; border:none; background:transparent; border-radius:5px;
+    font-size:13px; font-weight:800; color:#c8ccd3; cursor:pointer; font-family:inherit; padding:0;
     display:inline-flex; align-items:center; justify-content:center; transition:.1s;
+    user-select:none; -webkit-user-select:none;
   }
-  .ox2:hover{border-color:#c6c9ce}
-  .ox2.o{background:var(--brand); border-color:var(--brand); color:#fff}
-  .ox2.x{background:var(--t-red); border-color:var(--t-red); color:#fff}
+  .ox2:hover{background:#f1f2f4}
+  .ox2.o{color:var(--brand)}
+  .ox2.x{color:var(--t-red)}
+  tr.past .ox2.o{color:#7fb3aa}
+  tr.past .ox2.x{color:#e39b95}
+
+  /* 행사명 + 첨부 클립 */
+  .title-wrap{display:flex; align-items:center; gap:5px}
+  .af-title{
+    flex:1; min-width:0; text-align:left; padding:2px 3px; line-height:1.35; cursor:pointer;
+    border-radius:5px; word-break:break-word;
+  }
+  .af-title:hover{background:#f1f2f4}
+  .af-clip{
+    border:none; background:transparent; padding:2px 3px; cursor:pointer; color:var(--brand);
+    display:inline-flex; align-items:center; gap:1px; border-radius:5px; flex-shrink:0;
+    font-size:10px; font-weight:800; font-family:inherit;
+  }
+  .af-clip:hover{background:var(--brand-soft)}
+  .af-clip svg{width:13px; height:13px}
+  tr.past .af-clip{color:#9bb8b3}
+
+  /* 첨부 목록 모달 */
+  .aff-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; max-height:52vh; overflow:auto}
+  .aff-item{
+    display:flex; align-items:center; gap:8px; padding:9px 10px;
+    border:1px solid var(--line); border-radius:var(--r-sm); background:#fafafa;
+  }
+  .aff-item .ic{width:16px; height:16px; color:var(--dark); flex-shrink:0}
+  .aff-name{flex:1; min-width:0; font-size:13px; word-break:break-all; text-align:left}
+  .aff-act{
+    border:none; background:transparent; cursor:pointer; color:var(--muted); padding:4px;
+    display:flex; align-items:center; text-decoration:none; flex-shrink:0;
+  }
+  .aff-act:hover{color:var(--dark)}
+  .aff-act.del:hover{color:var(--danger)}
+  .aff-act .ic-sm{width:15px; height:15px}
+  .aff-add-btn{align-self:stretch}
   /* 비고 = 행사 아래 댓글 */
   tr.af-note-row td{
     background:#fbfbfc; text-align:left; padding:5px 8px 6px 10px; border-top:none;
@@ -691,6 +726,7 @@
               <ul id="dayFiles"></ul>
               <div class="df-empty" id="dfEmpty">등록된 파일이 없어요</div>
               <input type="file" id="dayFileInput" multiple hidden>
+            <input type="file" id="afFileInput" multiple hidden>
             </div>
 
             <div class="dp-add">
@@ -786,6 +822,16 @@
         <div class="pager" id="filePager"></div>
       </section>
     </aside>
+  </div>
+</div>
+
+<div class="modal-bg" id="affFilesModal">
+  <div class="modal">
+    <h3>행사 첨부파일</h3>
+    <p class="modal-sub" id="affTitle"></p>
+    <ul class="aff-list" id="affList"></ul>
+    <button class="btn block brand aff-add-btn" id="affAdd" type="button">＋ 파일 추가</button>
+    <button class="modal-cancel" id="affClose" type="button">닫기</button>
   </div>
 </div>
 
@@ -1724,8 +1770,9 @@ function renderNotes(){
     if(cls) tr.className = cls;
     const ox = (w)=>{
       const v = it[w]||'';
-      return `<button class="ox2 ${v==='O'?'o':v==='X'?'x':''}" type="button" data-w="${w}" title="눌러서 O/X 선택">${v||'–'}</button>`;
+      return `<button class="ox2 ${v==='O'?'o':v==='X'?'x':''}" type="button" data-w="${w}" title="더블클릭해서 O/X 변경">${v||'–'}</button>`;
     };
+    const nf = (it.files||[]).length;
     tr.innerHTML = `
       <td class="c-when">
         <span class="when-top">
@@ -1734,13 +1781,21 @@ function renderNotes(){
         </span>
         ${it.place ? `<span class="when-p">${esc(it.place)}</span>` : ''}
       </td>
-      <td><span class="af-title">${esc(it.title||'')}</span></td>
+      <td>
+        <span class="title-wrap">
+          <span class="af-title" title="눌러서 파일 등록">${esc(it.title||'')}</span>
+          ${nf ? `<button class="af-clip" type="button" title="첨부파일 ${nf}개 보기">${CLIP_ICON}${nf>1?nf:''}</button>` : ''}
+        </span>
+      </td>
       <td class="c-att-cell">${ox('a1')}</td>
       <td class="c-att-cell">${ox('a2')}</td>`;
     tr.querySelectorAll('.ox2').forEach(b=>{
-      b.addEventListener('click',()=>cycleAttend(it.id, b.dataset.w));
+      b.addEventListener('dblclick',()=>cycleAttend(it.id, b.dataset.w));
     });
     tr.querySelector('.af-pen').addEventListener('click',()=>openAfEdit(it.id));
+    tr.querySelector('.af-title').addEventListener('click',()=>pickAffairFiles(it.id));
+    const clip = tr.querySelector('.af-clip');
+    if(clip) clip.addEventListener('click',()=>openAffFiles(it.id));
     body.appendChild(tr);
 
     if(it.note){                      // 비고: 행사 아래에 댓글처럼
@@ -1752,6 +1807,93 @@ function renderNotes(){
     }
   });
   syncAffairHeight();
+}
+
+/* ----- 행사 첨부파일 ----- */
+let afFileTarget = null;
+function pickAffairFiles(id){
+  if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return; }
+  if(!cfg.token){ toast('파일을 등록하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return; }
+  afFileTarget = id;
+  $('#afFileInput').click();
+}
+
+async function uploadAffairFiles(id, files){
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
+  if(!Array.isArray(it.files)) it.files = [];
+  const arr = [...files];
+  let done=0, fail=0;
+  for(let i=0;i<arr.length;i++){
+    setBar(i/arr.length*100);
+    toast(`파일 등록 중… (${i+1}/${arr.length}) ${arr[i].name}`);
+    try{
+      const c = await uploadOne(arr[i], false);      // uploads 폴더 → 등록 파일에도 자동 표시
+      if(c){
+        it.files = it.files.filter(f=>f.path!==c.path);
+        it.files.push({ name:c.name, path:c.path, sha:c.sha, url:c.download_url||'' });
+      }
+      done++;
+    }catch(e){ fail++; toast(e.message, true); await sleep(1000); }
+  }
+  setBar(100); setTimeout(()=>setBar(0),500);
+  renderNotes();
+  try{
+    await saveNotes();
+    toast(fail? `완료: 성공 ${done} · 실패 ${fail}` : `${done}개 파일을 행사에 등록했어요 ✓`);
+  }catch(e){ toast('첨부 저장 실패: '+e.message, true); }
+  if(affOpenId === id) renderAffList();
+}
+
+let affOpenId = null;
+function openAffFiles(id){
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
+  const files = it.files || [];
+  // PDF 한 개뿐이면 바로 뷰어로
+  if(files.length === 1 && /\.pdf$/i.test(files[0].name)){ openPdfViewer(files[0]); return; }
+  affOpenId = id;
+  $('#affTitle').textContent = it.title || '';
+  renderAffList();
+  $('#affFilesModal').classList.add('open');
+}
+function closeAffFiles(){ affOpenId = null; $('#affFilesModal').classList.remove('open'); }
+
+function renderAffList(){
+  const it = affairs().find(x=>x.id===affOpenId);
+  const ul = $('#affList'); if(!ul) return;
+  ul.innerHTML = '';
+  const files = (it && it.files) || [];
+  if(!files.length){
+    ul.innerHTML = '<li class="pv-msg" style="padding:14px 2px">등록된 파일이 없어요</li>';
+    return;
+  }
+  files.forEach((f,i)=>{
+    const isPdf = /\.pdf$/i.test(f.name);
+    const li = document.createElement('li'); li.className='aff-item';
+    li.innerHTML = `
+      ${iconFor(f.name)}
+      <span class="aff-name">${esc(f.name)}</span>
+      ${isPdf ? `<button class="aff-act view" type="button" title="크게 보기">${CLIP_ICON}</button>` : ''}
+      <a class="aff-act" href="${attFileUrl(f)}" download="${esc(f.name)}" title="다운로드">${ICON_DOWNLOAD}</a>
+      <button class="aff-act del" type="button" title="이 행사에서 빼기">${ICON_TRASH}</button>`;
+    const v = li.querySelector('.view');
+    if(v) v.addEventListener('click',()=>{ closeAffFiles(); openPdfViewer(f); });
+    li.querySelector('.del').addEventListener('click',()=>detachAffairFile(i));
+    ul.appendChild(li);
+  });
+}
+
+async function detachAffairFile(idx){
+  const it = affairs().find(x=>x.id===affOpenId);
+  if(!it || !it.files || !it.files[idx]) return;
+  const f = it.files[idx];
+  if(!confirm(`'${f.name}' 을(를) 이 행사에서 뺄까요?\n(파일 자체는 '등록 파일'에 그대로 남아요)`)) return;
+  if(!requireWrite()) return;
+  const snap = JSON.stringify(notes);
+  it.files = it.files.filter((_,i)=>i!==idx);
+  renderNotes(); renderAffList();
+  await persistNotes(snap);
 }
 
 /* ----- 수정 / 삭제 모달 ----- */
@@ -1897,6 +2039,10 @@ $('#destNormal').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) han
 $('#destCancel').onclick=closeDestModal;
 $('#afAdd').onclick=addAffair;
 ['#afPlace','#afTitle','#afNote'].forEach(sel=>$(sel).addEventListener('keydown',e=>{ if(e.key==='Enter') addAffair(); }));
+$('#afFileInput').onchange=e=>{ if(afFileTarget) uploadAffairFiles(afFileTarget, e.target.files); e.target.value=''; afFileTarget=null; };
+$('#affAdd').onclick=()=>{ if(affOpenId) pickAffairFiles(affOpenId); };
+$('#affClose').onclick=closeAffFiles;
+$('#affFilesModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAffFiles(); });
 $('#mSave').onclick=saveAfEdit;
 $('#mDel').onclick=()=>{ if(afEditId) deleteAffair(afEditId); };
 $('#mCancel').onclick=closeAfEdit;
