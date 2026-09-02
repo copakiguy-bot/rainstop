@@ -389,37 +389,63 @@
     position:sticky; top:0; z-index:2;
   }
   .af-table thead tr:nth-child(2) th{top:27px}
-  .af-table .c-date{width:70px}
-  .af-table .c-sub{width:47px; font-size:11px; font-weight:600}
-  .af-table .c-note{width:66px}
-  .af-table .c-x{width:24px; padding:0}
+  .af-table col.col-when{width:80px}
+  .af-table col.col-att{width:28px}
+  .af-table .c-sub{font-size:10.5px; font-weight:600; padding:5px 1px}
+  .af-table th.c-att{padding:5px 2px}
   .af-table tbody td{background:#fff; font-weight:400}
   .af-table tbody tr.past td{color:#a8adb6}
   .af-table tbody tr.today td{background:var(--brand-soft)}
-  .af-date{cursor:pointer; font-variant-numeric:tabular-nums; white-space:nowrap}
-  .af-date:hover{color:var(--brand-d); text-decoration:underline}
-  .af-date input{
-    width:100%; border:1px solid var(--brand); border-radius:5px; padding:2px; font-size:11.5px;
-    font-family:inherit; background:#fff;
+  .af-table td.c-when{padding:5px 3px}
+  .when-top{display:flex; align-items:center; justify-content:center; gap:2px}
+  .when-d{font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .when-p{display:block; font-size:10.5px; color:var(--muted); margin-top:1px; word-break:break-all; line-height:1.3}
+  tr.past .when-p{color:#bcc0c7}
+  .af-pen{
+    border:none; background:transparent; padding:1px; cursor:pointer; color:#c2c6cd;
+    display:flex; align-items:center; border-radius:4px; flex-shrink:0;
   }
-  .af-edit{display:block; min-height:17px; cursor:text; text-align:left; padding:1px 3px; border-radius:4px}
-  .af-edit:hover{background:#f4f5f7}
-  .af-edit:focus{outline:2px solid var(--brand); outline-offset:-1px; background:#fff; text-align:left}
-  td.c-note .af-edit{text-align:center}
-  .ox-wrap{display:flex; gap:3px; justify-content:center}
-  .ox{
-    width:22px; height:22px; border:1px solid var(--line); background:#fff; border-radius:5px;
-    font-size:11.5px; font-weight:800; color:#b9bec7; cursor:pointer; font-family:inherit; padding:0;
-    display:flex; align-items:center; justify-content:center;
+  .af-pen:hover{color:var(--brand); background:#eef4f3}
+  .af-pen svg{width:12px; height:12px}
+  .af-title{display:block; text-align:left; padding:0 2px; line-height:1.35}
+  .af-table td.c-att-cell{padding:4px 1px}
+  .ox2{
+    width:100%; max-width:24px; height:23px; border:1px solid var(--line); background:#fff; border-radius:5px;
+    font-size:11.5px; font-weight:800; color:#c2c6cd; cursor:pointer; font-family:inherit; padding:0;
+    display:inline-flex; align-items:center; justify-content:center; transition:.1s;
   }
-  .ox:hover{border-color:#c6c9ce}
-  .ox.o.on{background:var(--brand); border-color:var(--brand); color:#fff}
-  .ox.x.on{background:var(--t-red); border-color:var(--t-red); color:#fff}
-  .af-del{
-    border:none; background:transparent; color:#c6c9ce; cursor:pointer; font-size:15px;
-    line-height:1; padding:2px; width:100%;
+  .ox2:hover{border-color:#c6c9ce}
+  .ox2.o{background:var(--brand); border-color:var(--brand); color:#fff}
+  .ox2.x{background:var(--t-red); border-color:var(--t-red); color:#fff}
+  /* 비고 = 행사 아래 댓글 */
+  tr.af-note-row td{
+    background:#fbfbfc; text-align:left; padding:5px 8px 6px 10px; border-top:none;
   }
-  .af-del:hover{color:var(--danger)}
+  tr.af-note-row .afn{
+    display:flex; gap:5px; font-size:11.5px; color:#6b7380; line-height:1.45; word-break:break-word;
+  }
+  tr.af-note-row .afn::before{content:'↳'; color:#b9bec7; flex-shrink:0}
+  tr.past + tr.af-note-row td .afn{color:#a8adb6}
+
+  /* 수정 모달 */
+  .af-modal{max-width:340px}
+  .m-grid{display:grid; grid-template-columns:56px 1fr; gap:8px 10px; align-items:center; margin-bottom:6px}
+  .m-grid label{font-size:12px; color:var(--muted); font-weight:600}
+  .m-grid input, .m-grid textarea{
+    border:1px solid var(--line); border-radius:var(--r-sm); background:#fafafa; color:var(--text);
+    font-family:inherit; font-size:14px; padding:9px 10px; width:100%; min-width:0;
+  }
+  .m-grid textarea{min-height:56px; resize:vertical; line-height:1.5}
+  .m-grid input:focus, .m-grid textarea:focus{outline:none; border-color:var(--dark); background:#fff}
+  .seg{display:flex; gap:5px}
+  .seg button{
+    flex:1; border:1.5px solid var(--line); background:#fff; color:var(--muted); border-radius:8px;
+    padding:7px 0; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  .seg button.on{border-color:var(--dark); background:var(--dark); color:#fff}
+  .seg button[data-v="O"].on{background:var(--brand); border-color:var(--brand)}
+  .seg button[data-v="X"].on{background:var(--t-red); border-color:var(--t-red)}
+  .btn.ghost.danger{color:var(--danger)}
   .af-empty{font-size:12.5px; color:var(--muted); padding:14px 2px; text-align:center}
   .af-add{display:flex; gap:6px; padding:12px 16px 0; flex-wrap:wrap}
   .af-add input{
@@ -427,8 +453,9 @@
     font-family:inherit; font-size:13px; padding:9px 10px; min-width:0;
   }
   .af-add input#afDate{width:132px; flex-shrink:0}
-  .af-add input#afTitle{flex:2 1 110px}
-  .af-add input#afNote{flex:1 1 80px}
+  .af-add input#afPlace{flex:1 1 90px}
+  .af-add input#afTitle{flex:2 1 120px}
+  .af-add input#afNote{flex:1 1 100%}
   .af-add input:focus{outline:none; border-color:var(--dark); background:#fff}
   .af-add .btn{padding:9px 16px; font-size:13.5px; flex-shrink:0}
 
@@ -544,14 +571,14 @@
     .af-scroll{padding:0 12px; margin-top:10px; max-height:none !important}
     .af-table{font-size:11.5px}
     .af-table th, .af-table td{padding:5px 3px}
-    .af-table .c-date{width:62px}
-    .af-table .c-sub{width:46px; font-size:10px}
-    .af-table .c-note{width:56px}
-    .af-table .c-x{width:22px}
-    .ox{width:20px; height:20px; font-size:11px}
+    .af-table col.col-when{width:68px}
+    .af-table col.col-att{width:26px}
+    .af-table .c-sub{font-size:10px; padding:4px 1px}
+    .ox2{max-width:22px; height:21px; font-size:11px}
     .af-add{padding:10px 12px 0; gap:5px}
-    .af-add input#afDate{width:100%}
-    .af-add input#afTitle{flex:1 1 100%}
+    .af-add input#afDate{width:calc(50% - 3px)}
+    .af-add input#afPlace{flex:1 1 auto}
+    .af-add input#afTitle, .af-add input#afNote{flex:1 1 100%}
 
     /* 설정 */
     #settings{padding:15px}
@@ -694,17 +721,18 @@
           </div>
           <div class="af-scroll" id="afScroll">
             <table class="af-table">
+              <colgroup>
+                <col class="col-when"><col class="col-title"><col class="col-att"><col class="col-att">
+              </colgroup>
               <thead>
                 <tr>
-                  <th rowspan="2" class="c-date">행사일</th>
+                  <th rowspan="2" class="c-when">때 / 곳</th>
                   <th rowspan="2" class="c-title">행사명</th>
                   <th colspan="2" class="c-att">참석여부</th>
-                  <th rowspan="2" class="c-note">비고</th>
-                  <th rowspan="2" class="c-x"></th>
                 </tr>
                 <tr>
-                  <th class="c-sub">1부의장</th>
-                  <th class="c-sub">2부의장</th>
+                  <th class="c-sub">1부</th>
+                  <th class="c-sub">2부</th>
                 </tr>
               </thead>
               <tbody id="afBody"></tbody>
@@ -713,8 +741,9 @@
           </div>
           <div class="af-add">
             <input type="date" id="afDate" title="행사일">
+            <input type="text" id="afPlace" placeholder="장소">
             <input type="text" id="afTitle" placeholder="행사명">
-            <input type="text" id="afNote" placeholder="비고 (선택)">
+            <input type="text" id="afNote" placeholder="비고 (선택) — 행사 아래에 표시돼요">
             <button class="btn" id="afAdd" type="button">추가</button>
           </div>
         </section>
@@ -757,6 +786,29 @@
         <div class="pager" id="filePager"></div>
       </section>
     </aside>
+  </div>
+</div>
+
+<div class="modal-bg" id="afModal">
+  <div class="modal af-modal">
+    <h3>행사 수정</h3>
+    <div class="m-grid">
+      <label>때</label><input type="date" id="mDate">
+      <label>곳</label><input type="text" id="mPlace" placeholder="장소">
+      <label>행사명</label><input type="text" id="mTitle" placeholder="행사명">
+      <label>1부의장</label>
+      <div class="seg" id="mA1">
+        <button type="button" data-v="">미정</button><button type="button" data-v="O">O</button><button type="button" data-v="X">X</button>
+      </div>
+      <label>2부의장</label>
+      <div class="seg" id="mA2">
+        <button type="button" data-v="">미정</button><button type="button" data-v="O">O</button><button type="button" data-v="X">X</button>
+      </div>
+      <label>비고</label><textarea id="mNote" placeholder="행사 아래에 댓글처럼 표시돼요"></textarea>
+    </div>
+    <button class="btn block brand" id="mSave" type="button">저장</button>
+    <button class="btn block ghost danger" id="mDel" type="button">이 행사 삭제</button>
+    <button class="modal-cancel" id="mCancel" type="button">취소</button>
   </div>
 </div>
 
@@ -1668,60 +1720,94 @@ function renderNotes(){
   const tStr = todayStr();
   items.forEach(it=>{
     const tr = document.createElement('tr');
-    if(it.date && it.date < tStr) tr.className = 'past';
-    else if(it.date === tStr) tr.className = 'today';
-    tr.innerHTML = `
-      <td><span class="af-date" title="눌러서 날짜 변경">${esc(fmtAfDate(it.date))}</span></td>
-      <td><span class="af-edit af-t" contenteditable="true" title="눌러서 수정">${esc(it.title||'')}</span></td>
-      <td><span class="ox-wrap">
-        <button class="ox o${it.a1==='O'?' on':''}" type="button" data-w="a1" data-v="O">O</button>
-        <button class="ox x${it.a1==='X'?' on':''}" type="button" data-w="a1" data-v="X">X</button>
-      </span></td>
-      <td><span class="ox-wrap">
-        <button class="ox o${it.a2==='O'?' on':''}" type="button" data-w="a2" data-v="O">O</button>
-        <button class="ox x${it.a2==='X'?' on':''}" type="button" data-w="a2" data-v="X">X</button>
-      </span></td>
-      <td class="c-note"><span class="af-edit af-n" contenteditable="true" title="눌러서 수정">${esc(it.note||'')}</span></td>
-      <td class="c-x"><button class="af-del" type="button" title="삭제">×</button></td>`;
-
-    tr.querySelectorAll('.ox').forEach(b=>{
-      b.addEventListener('click',()=>setAttend(it.id, b.dataset.w, b.dataset.v));
-    });
-    const commit = (el, field)=>{
-      const v = el.textContent.trim();
-      if((it[field]||'') === v) return;
-      updateAffair(it.id, field, v);
+    const cls = (it.date && it.date < tStr) ? 'past' : (it.date === tStr ? 'today' : '');
+    if(cls) tr.className = cls;
+    const ox = (w)=>{
+      const v = it[w]||'';
+      return `<button class="ox2 ${v==='O'?'o':v==='X'?'x':''}" type="button" data-w="${w}" title="눌러서 O/X 선택">${v||'–'}</button>`;
     };
-    const tEl = tr.querySelector('.af-t'), nEl = tr.querySelector('.af-n');
-    tEl.addEventListener('blur',()=>commit(tEl,'title'));
-    nEl.addEventListener('blur',()=>commit(nEl,'note'));
-    [tEl,nEl].forEach(el=>el.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
-      if(e.key==='Escape'){ el.textContent = it[el===tEl?'title':'note']||''; el.blur(); }
-    }));
-    tr.querySelector('.af-date').addEventListener('click',e=>editAfDate(e.currentTarget, it));
-    tr.querySelector('.af-del').addEventListener('click',()=>deleteAffair(it.id));
+    tr.innerHTML = `
+      <td class="c-when">
+        <span class="when-top">
+          <span class="when-d">${esc(fmtAfDate(it.date))}</span>
+          <button class="af-pen" type="button" title="수정 / 삭제">${ICON_EDIT}</button>
+        </span>
+        ${it.place ? `<span class="when-p">${esc(it.place)}</span>` : ''}
+      </td>
+      <td><span class="af-title">${esc(it.title||'')}</span></td>
+      <td class="c-att-cell">${ox('a1')}</td>
+      <td class="c-att-cell">${ox('a2')}</td>`;
+    tr.querySelectorAll('.ox2').forEach(b=>{
+      b.addEventListener('click',()=>cycleAttend(it.id, b.dataset.w));
+    });
+    tr.querySelector('.af-pen').addEventListener('click',()=>openAfEdit(it.id));
     body.appendChild(tr);
+
+    if(it.note){                      // 비고: 행사 아래에 댓글처럼
+      const nr = document.createElement('tr');
+      nr.className = 'af-note-row';
+      nr.innerHTML = `<td colspan="4"><span class="afn">${esc(it.note)}</span></td>`;
+      nr.addEventListener('click',()=>openAfEdit(it.id));
+      body.appendChild(nr);
+    }
   });
   syncAffairHeight();
 }
 
-function editAfDate(span, it){
-  if(span.querySelector('input')) return;
-  const inp = document.createElement('input');
-  inp.type = 'date'; inp.value = it.date || todayStr();
-  span.textContent = ''; span.appendChild(inp);
-  inp.focus();
-  let done = false;
-  const finish = (save)=>{
-    if(done) return; done = true;
-    const v = inp.value;
-    if(save && v && v !== it.date) updateAffair(it.id, 'date', v);
-    else renderNotes();
-  };
-  inp.addEventListener('change',()=>finish(true));
-  inp.addEventListener('blur',()=>finish(true));
-  inp.addEventListener('keydown',e=>{ if(e.key==='Escape') finish(false); if(e.key==='Enter') finish(true); });
+/* ----- 수정 / 삭제 모달 ----- */
+let afEditId = null;
+function segSet(sel, val){
+  document.querySelectorAll(sel+' button').forEach(b=>b.classList.toggle('on', (b.dataset.v||'') === (val||'')));
+}
+function segGet(sel){
+  const on = document.querySelector(sel+' button.on');
+  return on ? (on.dataset.v||'') : '';
+}
+function openAfEdit(id){
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
+  afEditId = id;
+  $('#mDate').value = it.date || '';
+  $('#mPlace').value = it.place || '';
+  $('#mTitle').value = it.title || '';
+  $('#mNote').value = it.note || '';
+  segSet('#mA1', it.a1); segSet('#mA2', it.a2);
+  $('#afModal').classList.add('open');
+  setTimeout(()=>$('#mTitle').focus(), 40);
+}
+function closeAfEdit(){ afEditId = null; $('#afModal').classList.remove('open'); }
+
+async function saveAfEdit(){
+  const it = affairs().find(x=>x.id===afEditId);
+  if(!it) return closeAfEdit();
+  const date = $('#mDate').value;
+  const title = $('#mTitle').value.trim();
+  if(!title){ toast('행사명을 입력하세요', true); $('#mTitle').focus(); return; }
+  if(!date){ toast('행사일을 선택하세요', true); $('#mDate').focus(); return; }
+  if(!requireWrite()) return;
+  const snap = JSON.stringify(notes);
+  it.date = date;
+  it.place = $('#mPlace').value.trim();
+  it.title = title;
+  it.note = $('#mNote').value.trim();
+  it.a1 = segGet('#mA1'); it.a2 = segGet('#mA2');
+  closeAfEdit();
+  renderNotes();
+  await persistNotes(snap);
+  toast('수정했어요 ✓');
+}
+
+async function deleteAffair(id){
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
+  if(!confirm(`'${it.title||'이 행사'}' 을(를) 삭제할까요?`)) return;
+  if(!requireWrite()) return;
+  const snap = JSON.stringify(notes);
+  notes.events = affairs().filter(x=>x.id!==id);
+  closeAfEdit();
+  renderNotes();
+  await persistNotes(snap);
+  toast('삭제했어요');
 }
 
 function requireWrite(){
@@ -1737,46 +1823,27 @@ async function persistNotes(snapshotJson){
 
 async function addAffair(){
   const date = $('#afDate').value;
+  const place = $('#afPlace').value.trim();
   const title = $('#afTitle').value.trim();
   const note = $('#afNote').value.trim();
   if(!title){ toast('행사명을 입력하세요', true); $('#afTitle').focus(); return; }
   if(!date){ toast('행사일을 선택하세요', true); $('#afDate').focus(); return; }
   if(!requireWrite()) return;
   const snap = JSON.stringify(notes);
-  affairs().push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), date, title, a1:'', a2:'', note });
-  $('#afTitle').value=''; $('#afNote').value='';
+  affairs().push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), date, place, title, a1:'', a2:'', note });
+  $('#afPlace').value=''; $('#afTitle').value=''; $('#afNote').value='';
   renderNotes();
   $('#afTitle').focus();
   await persistNotes(snap);
 }
 
-async function setAttend(id, who, val){
+// 눌러서 O ↔ X 선택 (처음 누르면 O)
+async function cycleAttend(id, who){
   if(!requireWrite()){ renderNotes(); return; }
   const it = affairs().find(x=>x.id===id);
   if(!it) return;
   const snap = JSON.stringify(notes);
-  it[who] = (it[who] === val) ? '' : val;     // 같은 값을 다시 누르면 해제
-  renderNotes();
-  await persistNotes(snap);
-}
-
-async function updateAffair(id, field, value){
-  if(!requireWrite()){ renderNotes(); return; }
-  const it = affairs().find(x=>x.id===id);
-  if(!it) return;
-  const snap = JSON.stringify(notes);
-  it[field] = value;
-  renderNotes();
-  await persistNotes(snap);
-}
-
-async function deleteAffair(id){
-  const it = affairs().find(x=>x.id===id);
-  if(!it) return;
-  if(!confirm(`'${it.title||'이 행사'}' 을(를) 삭제할까요?`)) return;
-  if(!requireWrite()) return;
-  const snap = JSON.stringify(notes);
-  notes.events = affairs().filter(x=>x.id!==id);
+  it[who] = (it[who] === 'O') ? 'X' : 'O';
   renderNotes();
   await persistNotes(snap);
 }
@@ -1829,7 +1896,17 @@ $('#destKey').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handle
 $('#destNormal').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handleFiles(f, false); };
 $('#destCancel').onclick=closeDestModal;
 $('#afAdd').onclick=addAffair;
-['#afTitle','#afNote'].forEach(sel=>$(sel).addEventListener('keydown',e=>{ if(e.key==='Enter') addAffair(); }));
+['#afPlace','#afTitle','#afNote'].forEach(sel=>$(sel).addEventListener('keydown',e=>{ if(e.key==='Enter') addAffair(); }));
+$('#mSave').onclick=saveAfEdit;
+$('#mDel').onclick=()=>{ if(afEditId) deleteAffair(afEditId); };
+$('#mCancel').onclick=closeAfEdit;
+$('#afModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAfEdit(); });
+['#mA1','#mA2'].forEach(sel=>{
+  document.querySelectorAll(sel+' button').forEach(b=>{
+    b.addEventListener('click',()=>segSet(sel, b.dataset.v||''));
+  });
+});
+$('#mTitle').addEventListener('keydown',e=>{ if(e.key==='Enter') saveAfEdit(); });
 window.addEventListener('resize', syncAffairHeight);
 if(window.ResizeObserver){
   const ro = new ResizeObserver(()=>syncAffairHeight());
