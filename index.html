@@ -377,6 +377,61 @@
   }
   .modal-cancel:hover{color:var(--dark)}
 
+  /* ===== 부의장실 행사 관리 ===== */
+  #affairCard{padding:0 0 14px; display:flex; flex-direction:column; overflow:hidden}
+  .af-scroll{flex:1 1 auto; min-height:120px; overflow:auto; margin-top:12px; padding:0 16px}
+  .af-table{width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px}
+  .af-table th, .af-table td{
+    border:1px solid #d9dbdf; padding:6px 5px; text-align:center; vertical-align:middle; word-break:break-word;
+  }
+  .af-table thead th{
+    background:#f4f5f7; font-weight:700; font-size:12px; color:var(--text);
+    position:sticky; top:0; z-index:2;
+  }
+  .af-table thead tr:nth-child(2) th{top:27px}
+  .af-table .c-date{width:70px}
+  .af-table .c-sub{width:47px; font-size:11px; font-weight:600}
+  .af-table .c-note{width:66px}
+  .af-table .c-x{width:24px; padding:0}
+  .af-table tbody td{background:#fff; font-weight:400}
+  .af-table tbody tr.past td{color:#a8adb6}
+  .af-table tbody tr.today td{background:var(--brand-soft)}
+  .af-date{cursor:pointer; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .af-date:hover{color:var(--brand-d); text-decoration:underline}
+  .af-date input{
+    width:100%; border:1px solid var(--brand); border-radius:5px; padding:2px; font-size:11.5px;
+    font-family:inherit; background:#fff;
+  }
+  .af-edit{display:block; min-height:17px; cursor:text; text-align:left; padding:1px 3px; border-radius:4px}
+  .af-edit:hover{background:#f4f5f7}
+  .af-edit:focus{outline:2px solid var(--brand); outline-offset:-1px; background:#fff; text-align:left}
+  td.c-note .af-edit{text-align:center}
+  .ox-wrap{display:flex; gap:3px; justify-content:center}
+  .ox{
+    width:22px; height:22px; border:1px solid var(--line); background:#fff; border-radius:5px;
+    font-size:11.5px; font-weight:800; color:#b9bec7; cursor:pointer; font-family:inherit; padding:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ox:hover{border-color:#c6c9ce}
+  .ox.o.on{background:var(--brand); border-color:var(--brand); color:#fff}
+  .ox.x.on{background:var(--t-red); border-color:var(--t-red); color:#fff}
+  .af-del{
+    border:none; background:transparent; color:#c6c9ce; cursor:pointer; font-size:15px;
+    line-height:1; padding:2px; width:100%;
+  }
+  .af-del:hover{color:var(--danger)}
+  .af-empty{font-size:12.5px; color:var(--muted); padding:14px 2px; text-align:center}
+  .af-add{display:flex; gap:6px; padding:12px 16px 0; flex-wrap:wrap}
+  .af-add input{
+    border:1px solid var(--line); border-radius:var(--r-sm); background:#fafafa; color:var(--text);
+    font-family:inherit; font-size:13px; padding:9px 10px; min-width:0;
+  }
+  .af-add input#afDate{width:132px; flex-shrink:0}
+  .af-add input#afTitle{flex:2 1 110px}
+  .af-add input#afNote{flex:1 1 80px}
+  .af-add input:focus{outline:none; border-color:var(--dark); background:#fff}
+  .af-add .btn{padding:9px 16px; font-size:13.5px; flex-shrink:0}
+
   /* ===== PDF 견본/뷰어 ===== */
   .dp-color{flex-wrap:wrap}
   .dp-pdfs{display:flex; gap:6px; margin-left:auto; align-items:center}
@@ -483,6 +538,20 @@
     .pdf-thumb{width:36px; height:48px}
     .pv-pages{padding:10px; gap:8px}
     .pdf-viewer{max-height:94vh; border-radius:14px}
+
+    /* 행사 관리 */
+    #affairCard{height:auto !important; padding:0 0 12px}
+    .af-scroll{padding:0 12px; margin-top:10px; max-height:none !important}
+    .af-table{font-size:11.5px}
+    .af-table th, .af-table td{padding:5px 3px}
+    .af-table .c-date{width:62px}
+    .af-table .c-sub{width:46px; font-size:10px}
+    .af-table .c-note{width:56px}
+    .af-table .c-x{width:22px}
+    .ox{width:20px; height:20px; font-size:11px}
+    .af-add{padding:10px 12px 0; gap:5px}
+    .af-add input#afDate{width:100%}
+    .af-add input#afTitle{flex:1 1 100%}
 
     /* 설정 */
     #settings{padding:15px}
@@ -618,25 +687,37 @@
         </section>
        </div>
 
-        <div class="inbox-col">
-          <section class="card inbox-card" id="inboxCard1">
-            <div class="card-head">
-              <span class="dot d1"></span>
-              <h2>1부의장</h2>
-              <span class="pi-count" id="inboxCount1"></span>
-            </div>
-            <div class="pi-wrap" id="inboxBody1"></div>
-          </section>
-
-          <section class="card inbox-card" id="inboxCard2">
-            <div class="card-head">
-              <span class="dot d2"></span>
-              <h2>2부의장</h2>
-              <span class="pi-count" id="inboxCount2"></span>
-            </div>
-            <div class="pi-wrap" id="inboxBody2"></div>
-          </section>
-        </div>
+        <section class="card" id="affairCard">
+          <div class="card-head">
+            <h2>부의장실 행사 관리</h2>
+            <span class="chip" id="afCount"></span>
+          </div>
+          <div class="af-scroll" id="afScroll">
+            <table class="af-table">
+              <thead>
+                <tr>
+                  <th rowspan="2" class="c-date">행사일</th>
+                  <th rowspan="2" class="c-title">행사명</th>
+                  <th colspan="2" class="c-att">참석여부</th>
+                  <th rowspan="2" class="c-note">비고</th>
+                  <th rowspan="2" class="c-x"></th>
+                </tr>
+                <tr>
+                  <th class="c-sub">1부의장</th>
+                  <th class="c-sub">2부의장</th>
+                </tr>
+              </thead>
+              <tbody id="afBody"></tbody>
+            </table>
+            <div class="af-empty" id="afEmpty">등록된 행사가 없어요</div>
+          </div>
+          <div class="af-add">
+            <input type="date" id="afDate" title="행사일">
+            <input type="text" id="afTitle" placeholder="행사명">
+            <input type="text" id="afNote" placeholder="비고 (선택)">
+            <button class="btn" id="afAdd" type="button">추가</button>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -1521,13 +1602,8 @@ async function deleteEvent(id){
   }
 }
 
-/* ================= 1·2부의장 메모 ================= */
-const NOTES_PATH = 'notes.json';
-// 기존 '1부의장님'(chair1) · '2부의장님'(chair2) 보드 데이터를 그대로 사용
-const INBOX_BOARDS = [
-  { id:'chair1', body:'#inboxBody1', count:'#inboxCount1' },
-  { id:'chair2', body:'#inboxBody2', count:'#inboxCount2' },
-];
+/* ================= 부의장실 행사 관리 ================= */
+const NOTES_PATH = 'notes.json';   // events 키에 행사 목록을 저장 (기존 메모 데이터는 그대로 보존)
 let notes = {};
 let notesSha = null;
 
@@ -1545,7 +1621,7 @@ async function loadNotes(){
     notes = (parsed && typeof parsed==='object') ? parsed : {};
     renderNotes();
   }catch(e){
-    toast('메모를 불러오지 못했어요: '+e.message, true);
+    toast('행사 목록을 불러오지 못했어요: '+e.message, true);
     renderNotes();
   }
 }
@@ -1563,84 +1639,155 @@ async function saveNotes(){
   if(data && data.content) notesSha = data.content.sha;
 }
 
-function renderNotes(){
-  INBOX_BOARDS.forEach(b=>{
-    const wrap = $(b.body);
-    if(!wrap) return;
-    const items = notes[b.id]||[];
-    const remaining = items.filter(x=>!x.done).length;
-    const cnt = $(b.count);
-    if(cnt) cnt.textContent = items.length ? remaining+'/'+items.length : '';
-    wrap.innerHTML = `
-      <ul class="pi-list"></ul>
-      ${items.length?'':'<div class="pi-empty">메모가 없어요</div>'}
-      <div class="pi-add">
-        <input class="pi-input" type="text" placeholder="메모 추가…">
-        <button class="pi-addbtn" title="추가">+</button>
-      </div>`;
-    const ul = wrap.querySelector('.pi-list');
-    items.forEach(it=>{
-      const li = document.createElement('li');
-      li.className = 'pi-item'+(it.done?' done':'');
-      li.innerHTML = `
-        <input type="checkbox" class="pi-chk" ${it.done?'checked':''}>
-        <span class="pi-text">${esc(it.text)}</span>
-        <button class="pi-del" title="삭제">×</button>`;
-      li.querySelector('.pi-chk').addEventListener('change',()=>toggleNote(b.id, it.id));
-      li.querySelector('.pi-text').addEventListener('click',()=>toggleNote(b.id, it.id));
-      li.querySelector('.pi-del').addEventListener('click',()=>deleteNote(b.id, it.id));
-      ul.appendChild(li);
-    });
-    const input = wrap.querySelector('.pi-input');
-    const add = ()=>addNote(b.id, input.value);
-    wrap.querySelector('.pi-addbtn').addEventListener('click',add);
-    input.addEventListener('keydown',e=>{ if(e.key==='Enter') add(); });
+/* ----- 행사 목록 (notes.json 안의 events 키) ----- */
+function affairs(){
+  if(!Array.isArray(notes.events)) notes.events = [];
+  return notes.events;
+}
+function afSorted(){
+  return affairs().slice().sort((a,b)=>{
+    const da = a.date||'9999-99-99', db = b.date||'9999-99-99';
+    if(da !== db) return da < db ? -1 : 1;
+    return (a.title||'').localeCompare(b.title||'','ko');
   });
+}
+function fmtAfDate(d){
+  if(!d) return '—';
+  const [y,m,dd] = d.split('-').map(Number);
+  if(!y||!m||!dd) return d;
+  const wd = ['일','월','화','수','목','금','토'][new Date(y,m-1,dd).getDay()];
+  return `${m}.${String(dd).padStart(2,'0')}(${wd})`;
+}
+
+function renderNotes(){
+  const body = $('#afBody'); if(!body) return;
+  const items = afSorted();
+  body.innerHTML = '';
+  $('#afCount').textContent = items.length ? items.length+'건' : '';
+  $('#afEmpty').style.display = items.length ? 'none' : 'block';
+  const tStr = todayStr();
+  items.forEach(it=>{
+    const tr = document.createElement('tr');
+    if(it.date && it.date < tStr) tr.className = 'past';
+    else if(it.date === tStr) tr.className = 'today';
+    tr.innerHTML = `
+      <td><span class="af-date" title="눌러서 날짜 변경">${esc(fmtAfDate(it.date))}</span></td>
+      <td><span class="af-edit af-t" contenteditable="true" title="눌러서 수정">${esc(it.title||'')}</span></td>
+      <td><span class="ox-wrap">
+        <button class="ox o${it.a1==='O'?' on':''}" type="button" data-w="a1" data-v="O">O</button>
+        <button class="ox x${it.a1==='X'?' on':''}" type="button" data-w="a1" data-v="X">X</button>
+      </span></td>
+      <td><span class="ox-wrap">
+        <button class="ox o${it.a2==='O'?' on':''}" type="button" data-w="a2" data-v="O">O</button>
+        <button class="ox x${it.a2==='X'?' on':''}" type="button" data-w="a2" data-v="X">X</button>
+      </span></td>
+      <td class="c-note"><span class="af-edit af-n" contenteditable="true" title="눌러서 수정">${esc(it.note||'')}</span></td>
+      <td class="c-x"><button class="af-del" type="button" title="삭제">×</button></td>`;
+
+    tr.querySelectorAll('.ox').forEach(b=>{
+      b.addEventListener('click',()=>setAttend(it.id, b.dataset.w, b.dataset.v));
+    });
+    const commit = (el, field)=>{
+      const v = el.textContent.trim();
+      if((it[field]||'') === v) return;
+      updateAffair(it.id, field, v);
+    };
+    const tEl = tr.querySelector('.af-t'), nEl = tr.querySelector('.af-n');
+    tEl.addEventListener('blur',()=>commit(tEl,'title'));
+    nEl.addEventListener('blur',()=>commit(nEl,'note'));
+    [tEl,nEl].forEach(el=>el.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
+      if(e.key==='Escape'){ el.textContent = it[el===tEl?'title':'note']||''; el.blur(); }
+    }));
+    tr.querySelector('.af-date').addEventListener('click',e=>editAfDate(e.currentTarget, it));
+    tr.querySelector('.af-del').addEventListener('click',()=>deleteAffair(it.id));
+    body.appendChild(tr);
+  });
+  syncAffairHeight();
+}
+
+function editAfDate(span, it){
+  if(span.querySelector('input')) return;
+  const inp = document.createElement('input');
+  inp.type = 'date'; inp.value = it.date || todayStr();
+  span.textContent = ''; span.appendChild(inp);
+  inp.focus();
+  let done = false;
+  const finish = (save)=>{
+    if(done) return; done = true;
+    const v = inp.value;
+    if(save && v && v !== it.date) updateAffair(it.id, 'date', v);
+    else renderNotes();
+  };
+  inp.addEventListener('change',()=>finish(true));
+  inp.addEventListener('blur',()=>finish(true));
+  inp.addEventListener('keydown',e=>{ if(e.key==='Escape') finish(false); if(e.key==='Enter') finish(true); });
 }
 
 function requireWrite(){
   if(!ready()){ toast('먼저 설정에서 저장소를 입력하세요', true); $('#settings').classList.add('open'); return false; }
-  if(!cfg.token){ toast('메모를 저장하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return false; }
+  if(!cfg.token){ toast('저장하려면 설정에서 토큰을 입력하세요', true); $('#settings').classList.add('open'); return false; }
   return true;
 }
 
 async function persistNotes(snapshotJson){
   try{ await saveNotes(); }
-  catch(e){ notes = JSON.parse(snapshotJson); renderNotes(); toast('메모 저장 실패: '+e.message, true); }
+  catch(e){ notes = JSON.parse(snapshotJson); renderNotes(); toast('저장 실패: '+e.message, true); }
 }
 
-function boardCfg(boardId){ return INBOX_BOARDS.find(b=>b.id===boardId); }
-
-async function addNote(boardId, text){
-  text = (text||'').trim();
-  if(!text) return;
+async function addAffair(){
+  const date = $('#afDate').value;
+  const title = $('#afTitle').value.trim();
+  const note = $('#afNote').value.trim();
+  if(!title){ toast('행사명을 입력하세요', true); $('#afTitle').focus(); return; }
+  if(!date){ toast('행사일을 선택하세요', true); $('#afDate').focus(); return; }
   if(!requireWrite()) return;
   const snap = JSON.stringify(notes);
-  if(!notes[boardId]) notes[boardId]=[];
-  notes[boardId].push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), text, done:false });
+  affairs().push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), date, title, a1:'', a2:'', note });
+  $('#afTitle').value=''; $('#afNote').value='';
   renderNotes();
-  const b = boardCfg(boardId);
-  const ni = b && $(b.body+' .pi-input');
-  if(ni) ni.focus();
+  $('#afTitle').focus();
   await persistNotes(snap);
 }
 
-async function toggleNote(boardId, id){
+async function setAttend(id, who, val){
   if(!requireWrite()){ renderNotes(); return; }
-  const it = (notes[boardId]||[]).find(x=>x.id===id);
+  const it = affairs().find(x=>x.id===id);
   if(!it) return;
   const snap = JSON.stringify(notes);
-  it.done = !it.done;
+  it[who] = (it[who] === val) ? '' : val;     // 같은 값을 다시 누르면 해제
   renderNotes();
   await persistNotes(snap);
 }
 
-async function deleteNote(boardId, id){
-  if(!requireWrite()) return;
+async function updateAffair(id, field, value){
+  if(!requireWrite()){ renderNotes(); return; }
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
   const snap = JSON.stringify(notes);
-  notes[boardId] = (notes[boardId]||[]).filter(x=>x.id!==id);
+  it[field] = value;
   renderNotes();
   await persistNotes(snap);
+}
+
+async function deleteAffair(id){
+  const it = affairs().find(x=>x.id===id);
+  if(!it) return;
+  if(!confirm(`'${it.title||'이 행사'}' 을(를) 삭제할까요?`)) return;
+  if(!requireWrite()) return;
+  const snap = JSON.stringify(notes);
+  notes.events = affairs().filter(x=>x.id!==id);
+  renderNotes();
+  await persistNotes(snap);
+}
+
+/* 행사 관리 칸 높이를 '등록 파일' 칸에 맞춤 (넓은 화면 전용) */
+function syncAffairHeight(){
+  const card = $('#affairCard'), files = $('#filesCard');
+  if(!card || !files) return;
+  if(window.innerWidth < 1081){ card.style.removeProperty('height'); return; }
+  const h = Math.round(files.getBoundingClientRect().height);
+  if(h > 120) card.style.height = h + 'px';
 }
 
 // ---------- helpers ----------
@@ -1681,6 +1828,13 @@ function closeDestModal(){ pendingFiles = null; $('#destModal').classList.remove
 $('#destKey').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handleFiles(f, true); };
 $('#destNormal').onclick=()=>{ const f=pendingFiles; closeDestModal(); if(f) handleFiles(f, false); };
 $('#destCancel').onclick=closeDestModal;
+$('#afAdd').onclick=addAffair;
+['#afTitle','#afNote'].forEach(sel=>$(sel).addEventListener('keydown',e=>{ if(e.key==='Enter') addAffair(); }));
+window.addEventListener('resize', syncAffairHeight);
+if(window.ResizeObserver){
+  const ro = new ResizeObserver(()=>syncAffairHeight());
+  const fc = $('#filesCard'); if(fc) ro.observe(fc);
+}
 $('#pvClose').onclick=closePdfViewer;
 $('#pdfModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closePdfViewer(); });
 $('#destModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDestModal(); });
@@ -1725,6 +1879,7 @@ if(!ready()){ $('#settings').classList.add('open'); $('#setupBanner').style.disp
 selDate = todayStr();          // 일정 적기 패널은 항상 열려 있고 기본은 오늘
 renderCalendar();
 renderDayPanel();
+$('#afDate').value = todayStr();
 renderNotes();
 renderKeyFiles();
 loadFiles();
